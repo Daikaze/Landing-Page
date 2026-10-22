@@ -1,0 +1,9 @@
+{
+  "AVERIS_LANDING": {
+    "Launcher": "Averis Landing Page",
+    "OpenOnJoin": "Show landing page when joining an open session",
+    "OpenOnJoinHint": "Automatically opens the landing screen until the GM starts the session.",
+    "ShowLauncher": "Show floating landing button",
+    "ShowLauncherHint": "A small compass button that opens the landing page at any time."
+  }
+}
