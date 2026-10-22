@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-label="Decorative uncharted fantasy map placeholder">
+<defs>
+ <radialGradient id="paper"><stop offset="0" stop-color="#e6d4aa"/><stop offset=".75" stop-color="#d1b886"/><stop offset="1" stop-color="#b99a69"/></radialGradient>
+ <radialGradient id="fog"><stop offset=".45" stop-color="#f3dfb4" stop-opacity="0"/><stop offset="1" stop-color="#44321d" stop-opacity=".5"/></radialGradient>
+ <pattern id="grain" width="55" height="55" patternUnits="userSpaceOnUse"><path d="M0 5l55 17M-10 45l48 16" stroke="#7f6742" stroke-opacity=".07" stroke-width="1"/></pattern>
+ <pattern id="waves" width="95" height="70" patternUnits="userSpaceOnUse"><path d="M5 19q16-9 32 0m9 28q15-9 31 0" fill="none" stroke="#765f41" stroke-opacity=".16" stroke-width="1.4"/></pattern>
+ <filter id="edge"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="3" seed="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="10"/></filter>
+</defs>
+<rect width="1200" height="820" fill="url(#paper)"/><rect width="1200" height="820" fill="url(#grain)"/><rect width="1200" height="820" fill="url(#waves)"/>
+<g stroke="#68513a" stroke-width="2.4" fill="#c0aa78" fill-opacity=".88" filter="url(#edge)">
+ <path d="M96 170Q183 111 238 146L288 122 354 166 390 220 455 248 472 311 447 365 483 432 455 507 415 539 374 611 299 618 265 672 219 624 185 544 131 512 113 464 84 409 116 344 79 278Z"/>
+ <path d="M562 85Q642 117 669 160L735 180 781 147 846 183 864 258 819 301 836 365 909 386 924 448 887 483 837 466 790 517 737 495 713 561 676 602 619 576 587 516 533 494 516 445 556 374 541 319 572 269 554 204Z"/>
+ <path d="M912 572Q953 514 1011 546L1059 521 1120 548 1126 603 1099 644 1067 700 1018 735 987 691 943 677 905 617Z"/>
+ <path d="M68 697l42-22 39 25-17 35-40 13-26-19Z"/>
+ <path d="M950 182l37-26 36 23-8 42-37 14-30-26Z"/>
+</g>
+<g stroke="#917751" stroke-width="1" opacity=".5" fill="none"><path d="M98 161Q180 92 255 123l84-15 79 82 72 51 12 86-24 60 35 48-24 84-44 45"/><path d="M551 67q110 5 145 80l43 6 47-28 94 49 14 95-42 44"/></g>
+<g stroke="#66543e" stroke-width="2.4" fill="none" opacity=".74">
+ <path d="M175 328q38 24 55 84t67 93" stroke-dasharray="4 7"/>
+ <path d="M611 250q40 31 51 92t76 107" stroke-dasharray="4 7"/>
+ <path d="M608 333q40 52 20 123t52 128" stroke="#7e856a" stroke-width="4" stroke-opacity=".65"/>
+ <path d="M329 213q-10 75 26 128t-14 107" stroke="#7e856a" stroke-width="4" stroke-opacity=".65"/>
+</g>
+<g fill="none" stroke="#6a5238" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".82">
+ <path d="M205 260l16-37 16 37m-8-2 15-32 15 33m-8 0 17-43 21 43m-66 12 15-31 16 31"/>
+ <path d="M302 555l16-32 17 32m-10-2 19-38 23 40m-11-2 17-31 18 31"/>
+ <path d="M714 253l17-39 21 39m-9-3 16-34 21 34m-9-2 18-43 22 43"/>
+ <path d="M762 401l15-29 16 30m-7-3 14-32 20 33m-9-2 17-35 19 35"/>
+ <path d="M995 602l12-27 13 27m-6-2 14-36 20 36"/>
+</g>
+<g fill="#526248" opacity=".72" stroke="#546448" stroke-width="1.8"><path d="M154 444l-10-22 10 7-1-25 12 24 4-7-6 25Z"/><path d="M172 473l-10-27 10 9-1-23 11 23 5-6-9 24Z"/><path d="M196 466l-9-22 9 5-2-24 13 24 3-7-8 24Z"/>
+<path d="M380 471l-10-27 10 7-2-23 13 23 5-6-11 26Z"/><path d="M398 482l-8-23 10 7-2-24 12 25 5-7-11 22Z"/>
+<path d="M671 461l-10-27 11 9-1-27 13 28 6-8-11 25Z"/><path d="M694 476l-11-25 12 9-2-27 15 27 5-8-12 25Z"/>
+<path d="M1049 615l-12-25 12 9-2-25 14 24 6-8-11 26Z"/></g>
+<g opacity=".55" fill="none" stroke="#4d402f" stroke-width="2">
+ <circle cx="1061" cy="188" r="47"/><circle cx="1061" cy="188" r="36"/><path d="M1061 129v118m-59-59h118m-102-42 86 86m0-86-86 86"/>
+ <path d="m1061 143 10 45-10 45-10-45Z" fill="#6a4d37"/>
+</g>
+<text x="1061" y="124" fill="#503e2b" font-size="25" text-anchor="middle" font-family="Georgia">N</text>
+<g font-family="Georgia,serif" fill="#644a2e" text-anchor="middle" opacity=".78"><text x="602" y="727" letter-spacing="12" font-size="24">UNMAPPED REALMS</text><text x="598" y="761" font-style="italic" font-size="17">Replace this illustration with your Averis world map</text></g>
+<path d="M27 27h1146v766H27Z" fill="none" stroke="#7b5a36" stroke-opacity=".42" stroke-width="3"/><path d="M36 36h1128v748H36Z" fill="none" stroke="#6f553a" stroke-opacity=".35" stroke-width="1"/><rect width="1200" height="820" fill="url(#fog)"/>
+</svg>

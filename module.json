@@ -1,8 +1,8 @@
 {
   "id": "averis-landing",
   "title": "Averis Landing Page",
-  "description": "Classic D&D campaign home screen for Averis: heroes, world map, quests, recaps, music, GM editor and synchronized cinematic sessions.",
-  "version": "0.1.0",
+  "description": "Averis fantasy atlas landing screen for Foundry VTT v14: central world map, six campaign controls, quests, recaps, cinematic, audio and GM editor.",
+  "version": "0.2.0",
   "authors": [
     {
       "name": "Daikaze"

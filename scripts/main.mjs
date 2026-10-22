@@ -35,7 +35,7 @@ Hooks.once("ready",()=>{
   if(game.settings.get(MODULE_ID,SETTINGS.openOnJoin) && game.settings.get(MODULE_ID,SETTINGS.sessionOpen)) {
     setTimeout(()=>openLanding("home"),450);
   }
-  console.info("Averis Landing | 0.1.0 initialized for Foundry VTT v14");
+  console.info("Averis Landing | 0.2.0 initialized for Foundry VTT v14");
 });
 
 Hooks.on("updateSetting",(setting)=>{

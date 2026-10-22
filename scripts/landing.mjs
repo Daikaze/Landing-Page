@@ -11,7 +11,7 @@ let editorHandler = null;
 let cinematicRunning = false;
 let cutsceneTimeout = null;
 let transitionSerial = 0;
-const SECTION_NAMES = {home:"Hall", characters:"Heroes", map:"World Map", quests:"Quest Board", recaps:"Chronicles"};
+const SECTION_NAMES = {home:"Averis", characters:"Character Showcase", map:"Interactive World Map", quests:"Quest Board", recaps:"Session Recap", audio:"Music & Effects"};
 
 export function setEditorHandler(callback) { editorHandler = callback; }
 export function landingIsOpen() { return !!document.getElementById("averis-landing-root"); }
@@ -54,26 +54,56 @@ export async function closeLanding() {
   refreshLauncher();
 }
 
-function background(data) {
-  const bg = safeAsset(data.backgroundImage);
-  return `<div class="av-bg" aria-hidden="true">${bg ? `<img src="${esc(bg)}" alt="">` : ""}</div>`;
+// Full-screen campaign table, not a website-style navbar. The reference layout
+// uses three unobtrusive icon controls on each side of the central map.
+const PLACEHOLDER_MAP = "modules/averis-landing/assets/averis-map-placeholder.svg";
+function stageIcon(name) {
+  const art={
+    heroes:'<circle cx="8.5" cy="8" r="2.8"/><circle cx="16.8" cy="9" r="2.3"/><path d="M2.5 19c0-4 2.4-6 6-6s6 2 6 6M14.6 14c3 0 5.3 1.8 5.3 5"/>',
+    quests:'<path d="M6 3h12v15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h11M7 8h8M7 12h8M7 16h5"/>',
+    play:'<path d="M6 3h12l3 4v13H3V7l3-4Zm-2 5h16M8 3l3 5m3-5 3 5"/><path d="m10 10 6 4-6 4z"/>',
+    map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/>',
+    recaps:'<path d="M12 5c-2.5-1.5-6.4-2.2-9-1v15c3.3-1.2 6.9-.5 9 1.2C14.2 18.5 18 18 21 19V4c-3-1.2-6.5-.5-9 1Zm0 0v15"/>',
+    music:'<path d="M9 18V6l12-3v12M9 8l12-3"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="15" rx="3" ry="2"/>'
+  };
+  return `<svg viewBox="0 0 24 24" width="29" height="29" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${art[name]??art.map}</svg>`;
 }
-function nav(data) {
-  const tabs = Object.entries(SECTION_NAMES).map(([id, name]) => `<button type="button" class="av-nav-item ${id===activeTab?"av-selected":""}" data-av-tab="${id}" aria-current="${id===activeTab?"page":"false"}">${icon({home:"fa-landmark",characters:"heroes",map:"map",quests:"quests",recaps:"recaps"}[id])}<span>${name}</span></button>`).join("");
-  return `<header class="av-topbar"><div class="av-brand">${icon("compass")}<span>${esc(data.title)}</span><small>EST. ${esc(data.worldYear)}</small></div><nav aria-label="Campaign navigation">${tabs}</nav><div class="av-header-buttons">${game.user.isGM?`<button type="button" class="av-icon-btn" title="GM Editor" data-av-action="editor">${icon("gear")}</button>`:""}<button type="button" class="av-icon-btn" title="Close landing page" data-av-action="close">${icon("close")}</button></div></header>`;
+function stageButton(label, symbol, action, side) {
+  const isTab = ["characters","map","quests","recaps"].includes(action);
+  const disabled = action === "start" && !game.user.isGM;
+  const isActive = isTab && activeTab === action;
+  const attribute = isTab ? `data-av-tab="${action}"` : `data-av-action="${action}"`;
+  return `<button type="button" class="av-rail-button ${isActive?"av-rail-active":""}" ${attribute} ${disabled?'disabled title="Only the GM can start a session"':''} aria-label="${esc(label)}" aria-pressed="${isActive}">
+    <span class="av-rail-icon">${stageIcon(symbol)}</span><span class="av-rail-caption">${esc(label)}</span></button>`;
 }
-function hero(data) {
-  const c = publicEntries(data.characters);
-  const currentQuests = publicEntries(data.quests).filter(q=>q.status === "Active");
-  return `<section class="av-home">
-    <div class="av-ornament">✦ <span>THE CHRONICLES OF AVERIS</span> ✦</div>
-    <div class="av-home-sigil" aria-hidden="true">⚜</div>
-    <h1>${esc(data.title)}</h1><h2>${esc(data.subtitle)}</h2>
-    <p class="av-home-intro">${esc(data.introduction)}</p>
-    <div class="av-home-divider"><span>◆</span></div>
-    <div class="av-home-actions"><button type="button" class="av-gold-button" data-av-tab="characters">${icon("heroes")} Meet the Heroes</button><button type="button" class="av-outline-button" data-av-tab="map">${icon("map")} Explore the World</button></div>
-    <div class="av-home-stats"><span>${icon("heroes")} ${c.length} Heroes</span><span>${icon("quests")} ${currentQuests.length} Active Quests</span><span>${icon("recaps")} ${publicEntries(data.recaps).length} Chronicles</span></div>
-    </section>`;
+function stageMap(data) {
+  const src = safeAsset(data.mapImage) || PLACEHOLDER_MAP;
+  const isDemo = !safeAsset(data.mapImage);
+  const places=publicEntries(data.locations).filter(l=>game.user.isGM || l.discovered !== false);
+  const pins=places.map(l=>`<button type="button" class="av-stage-pin ${selectedLocation===l.id?"av-pin-active":""}" title="${esc(l.name)}" style="left:${clamp(l.x,0,100)}%;top:${clamp(l.y,0,100)}%" data-av-location="${esc(l.id)}" aria-label="${esc(l.name)}"><span class="av-stage-pin-gem">✦</span><span class="av-stage-pin-name">${esc(l.name)}</span></button>`).join("");
+  return `<div class="av-stage-center" aria-label="Map of Averis">
+      <div class="av-map-frame"><div class="av-stage-map-viewport">
+        <div class="av-stage-map-content" style="transform:scale(${mapZoom})"><img src="${esc(src)}" alt="${isDemo?"Decorative fantasy map placeholder":"Averis world map"}" draggable="false">${isDemo?"":pins}</div>
+      </div><span class="av-corner av-corner-tl"></span><span class="av-corner av-corner-tr"></span><span class="av-corner av-corner-bl"></span><span class="av-corner av-corner-br"></span></div>
+      ${isDemo?`<div class="av-map-hint">Illustrative map — ${game.user.isGM?"select the actual map in GM Editor":"map will be revealed by your GM"}</div>`:""}
+      <div class="av-stage-zoom"><button type="button" data-av-action="zoom-out" aria-label="Zoom map out">−</button><span>${Math.round(mapZoom*100)}%</span><button type="button" data-av-action="zoom-in" aria-label="Zoom map in">+</button></div>
+    </div>`;
+}
+function mapLocationsPanel(data) {
+  const places=publicEntries(data.locations).filter(l=>game.user.isGM || l.discovered !== false);
+  const active=places.find(l=>l.id===selectedLocation) ?? null;
+  return `<div class="av-stage-info av-map-info"><div class="av-stage-info-heading"><span>WORLD ATLAS</span><button type="button" data-av-action="home" aria-label="Close map details">×</button></div>
+    ${active?`<h3>${esc(active.name)}</h3><p>${esc(active.description)}</p>${active.sceneId?`<button type="button" class="av-small-button" data-av-scene="${esc(active.sceneId)}">View Scene →</button>`:""}<button type="button" class="av-inline-link" data-av-action="map-list">← All locations</button>`:
+       `<h3>Discovered Locations</h3>${places.length ? `<div class="av-stage-locations">${places.map(l=>`<button type="button" data-av-location="${esc(l.id)}">${icon("flag")} ${esc(l.name)}</button>`).join("")}</div>`:`<p>No locations discovered. ${game.user.isGM?"Add markers in GM Editor.":"Explore the world to unlock places."}</p>`}`}
+    </div>`;
+}
+function audioPanel(data) {
+  const hasMusic=!!safeAsset(data.landingMusic);
+  return `<div class="av-stage-dialog" role="dialog" aria-label="Music and effects"><div class="av-stage-dialog-heading"><span>THE SOUNDS OF AVERIS</span><button type="button" data-av-action="home" aria-label="Close music panel">×</button></div><div class="av-audio-chapter">
+    <div class="av-audio-emblem">${icon("music")}</div><h2>Music & Effects</h2><p>Set the atmosphere before the adventure begins.</p>
+    <button type="button" class="av-gold-button" data-av-action="audio" ${hasMusic?"":"disabled"}>${icon(audioPlaying()?"audioOn":"audioOff")} ${hasMusic?(audioPlaying()?"Stop Ambience":"Play Ambience"):"No track configured"}</button>
+    <small>Ambient particles: ${data.particles?"Enabled":"Disabled"}</small>${game.user.isGM?`<button type="button" class="av-inline-link" data-av-action="editor">Manage music in GM Editor →</button>`:""}
+    </div></div>`;
 }
 function personCard(entry) {
   // Linked Actor information is used only when this user has at least OBSERVER permission.
@@ -107,16 +137,38 @@ function recapsPage(data) {
   const chosen = entries.find(r=>r.id===selectedRecap) ?? entries[0];
   return `<section class="av-page"><div class="av-page-heading"><span>TALES OF THOSE WHO CAME BEFORE</span><h2>Session Chronicles</h2><p>Previously on Averis...</p></div><div class="av-recaps"><div class="av-recap-list">${entries.map(r=>`<button type="button" class="av-recap-entry ${chosen?.id===r.id?"av-current":""}" data-av-recap="${esc(r.id)}"><span>SESSION ${esc(r.session)}</span><strong>${esc(r.title)}</strong></button>`).join("")}</div><article class="av-recap-copy">${chosen?`<span class="av-kicker">CHRONICLE ${esc(chosen.session)} ${chosen.date?"• "+esc(chosen.date):""}</span><h3>${esc(chosen.title)}</h3><div class="av-recap-prose">${makeTextParagraphs(chosen.summary)}</div>`:`<div class="av-empty">No recaps have been published yet.</div>`}</article></div></section>`;
 }
-function footer(data) {
-  const disabled = !safeAsset(data.landingMusic);
-  return `<footer class="av-bottom"><div class="av-bottom-world">${icon("compass")} THE WORLD OF AVERIS <span>•</span> YEAR ${esc(data.worldYear)}</div><div class="av-bottom-controls"><button type="button" data-av-action="audio" class="av-audio" ${disabled?"disabled title='Configure music in GM Editor'":""}>${icon(audioPlaying()?"audioOn":"audioOff")} ${audioPlaying()?"Mute Ambience":"Play Ambience"}</button>${game.user.isGM?`<button type="button" class="av-gold-button av-start" data-av-action="start">${icon("play")} Start Session</button><button type="button" class="av-text-button" data-av-action="show-all">Show to Players</button>`:""}</div></footer>`;
-}
 export function renderLanding() {
-  const root = document.getElementById("averis-landing-root");
-  if (!root) return;
-  const data = campaign();
-  const content = {home:hero, characters:charactersPage, map:mapPage, quests:questPage, recaps:recapsPage}[activeTab](data);
-  root.innerHTML = `${background(data)}<div class="av-shell ${data.particles ? "av-particles":""}">${nav(data)}<main class="av-main">${content}</main>${footer(data)}</div>`;
+  const root=document.getElementById("averis-landing-root");
+  if(!root)return;
+  const data=campaign();
+  const detail=activeTab==="map"?mapLocationsPanel(data)
+     :activeTab==="audio"?audioPanel(data)
+     :["characters","quests","recaps"].includes(activeTab)
+       ?`<div class="av-stage-dialog av-book-dialog" role="dialog" aria-label="${esc(SECTION_NAMES[activeTab])}"><div class="av-stage-dialog-heading"><span>AVERIS CHRONICLES</span><button type="button" data-av-action="home" aria-label="Return to map">×</button></div><main class="av-main">${{characters:charactersPage,quests:questPage,recaps:recapsPage}[activeTab](data)}</main></div>`
+       :"";
+  root.innerHTML=`<div class="av-backdrop" aria-hidden="true">${safeAsset(data.backgroundImage)?`<img src="${esc(safeAsset(data.backgroundImage))}" alt="">`:""}</div>
+    <div class="av-campaign-stage ${data.particles?"av-particles":""}">
+      <header class="av-stage-title"><h1>Averis</h1><button type="button" class="av-stage-close" data-av-action="close" aria-label="Close landing page" title="Close">×</button></header>
+      <div class="av-stage-layout">
+        <nav class="av-rail av-rail-left" aria-label="Campaign sections">
+          ${stageButton("Character Showcase","heroes","characters","left")}
+          ${stageButton("Quest Board","quests","quests","left")}
+          ${stageButton("Cinematic Start","play","start","left")}
+        </nav>
+        ${stageMap(data)}
+        <nav class="av-rail av-rail-right" aria-label="World and media">
+          ${stageButton("Interactive World Map","map","map","right")}
+          ${stageButton("Session Recap","recaps","recaps","right")}
+          ${stageButton("Music & Effects","music","music","right")}
+        </nav>
+      </div>
+      <footer class="av-stage-footer">
+        <div class="av-gm-controls">${game.user.isGM?`<button type="button" class="av-footer-link" data-av-action="editor">${icon("gear")} GM Editor</button><button type="button" class="av-footer-link" data-av-action="show-all">${icon("heroes")} Show to Players</button>`:""}</div>
+        <span class="av-footer-ornament" aria-hidden="true">✦ ─── ◆ ─── ✦</span>
+        <button type="button" class="av-footer-link" data-av-action="audio" ${!safeAsset(data.landingMusic)?"disabled":""} aria-label="${audioPlaying()?"Mute ambience":"Play ambience"}">${icon(audioPlaying()?"audioOn":"audioOff")}</button>
+      </footer>
+      ${detail}
+    </div>`;
 }
 
 async function showDocumentFromUuid(uuid) {
@@ -133,7 +185,7 @@ async function onClick(event) {
   if (!button || !event.currentTarget.contains(button)) return;
   if (button.dataset.avTab) { activeTab=button.dataset.avTab; renderLanding(); return; }
   if (button.dataset.avFilter) {filterQuests=button.dataset.avFilter;renderLanding();return;}
-  if (button.dataset.avLocation) {selectedLocation=button.dataset.avLocation;renderLanding();return;}
+  if (button.dataset.avLocation) {selectedLocation=button.dataset.avLocation;activeTab="map";renderLanding();return;}
   if (button.dataset.avRecap) {selectedRecap=button.dataset.avRecap;renderLanding();return;}
   if (button.dataset.avJournal) {await showDocumentFromUuid(button.dataset.avJournal); return;}
   if (button.dataset.avActor) {
@@ -150,6 +202,8 @@ async function onClick(event) {
   }
   switch(button.dataset.avAction) {
     case "close": await closeLanding(); break;
+    case "home": activeTab="home";selectedLocation=null;renderLanding();break;
+    case "music": activeTab="audio";renderLanding();break;
     case "editor": if(game.user.isGM){await closeLanding();editorHandler?.();} break;
     case "zoom-in":mapZoom=clamp(mapZoom+0.25,1,2.5);renderLanding();break;
     case "zoom-out":mapZoom=clamp(mapZoom-0.25,1,2.5);renderLanding();break;

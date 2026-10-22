@@ -211,3 +211,119 @@
   .averis-editor-window .av-edit-form-panel{padding:17px;}
 }
 @media(prefers-reduced-motion:reduce){#averis-landing-root .av-particles:after{animation:none;}#averis-cinematic,#averis-cinematic .av-cinematic-content{animation:none;} }
+/* ============================================================
+   V0.2: central atlas and six icon rails, following the Averis
+   campaign diagram. All selectors are rooted to this module.
+   ============================================================ */
+#averis-landing-root .av-campaign-stage {
+  position:relative; isolation:isolate; display:flex; flex-direction:column;
+  width:100%;height:100%;min-height:0;overflow:hidden;
+  background:radial-gradient(ellipse at center,#352a1d 0%,#171310 75%,#090808 100%);
+}
+#averis-landing-root .av-backdrop {position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.3;}
+#averis-landing-root .av-backdrop img{width:100%;height:100%;object-fit:cover;filter:blur(14px) saturate(.65)}
+#averis-landing-root .av-campaign-stage:before{content:"";position:absolute;inset:13px;border:1px solid #a58a5680;pointer-events:none;z-index:12}
+#averis-landing-root .av-campaign-stage:after{content:"";position:absolute;inset:22px;border:1px solid #d8b97c24;pointer-events:none;z-index:12}
+#averis-landing-root .av-stage-title{position:relative;flex:0 0 auto;text-align:center;padding:26px 60px 15px;z-index:3;}
+#averis-landing-root .av-stage-title h1{font-family:Georgia,"Palatino Linotype",serif;font-size:clamp(39px,4.4vw,69px);font-variant:small-caps;color:#f5dba7;letter-spacing:.2em;margin:0;text-indent:.2em;font-weight:normal;line-height:1.2;text-shadow:0 3px 22px #000,0 2px #302115}
+#averis-landing-root .av-stage-title h1:after{content:"";height:1px;width:min(370px,32vw);display:block;margin:9px auto 0;background:linear-gradient(90deg,transparent,#b9924b,#e8d3a0,#b9924b,transparent)}
+#averis-landing-root .av-stage-close {position:absolute;right:34px;top:29px;width:38px;height:38px;border:1px solid #725a39;border-radius:50%;background:#120e0aca;color:#d8b77d;font-size:18px}
+#averis-landing-root .av-stage-close:hover{background:#4e3822;color:#fff3d7;}
+#averis-landing-root .av-stage-layout{display:grid;grid-template-columns:clamp(160px,17vw,252px) minmax(0,1fr) clamp(160px,17vw,252px);flex:1;min-height:0;gap:clamp(10px,1.5vw,28px);padding:5px clamp(22px,4.3vw,72px) 0;align-items:center}
+#averis-landing-root .av-rail {height:min(67vh,640px);display:flex;flex-direction:column;align-items:stretch;justify-content:space-around;gap:9px;z-index:3;}
+#averis-landing-root .av-rail-button {appearance:none;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;flex:1;min-height:100px;max-height:175px;border:1px solid transparent;border-radius:5px;background:transparent;color:#e6cf9e;text-shadow:0 2px 12px #090805;transition:background .2s,color .2s,transform .2s;border-color .2s;padding:14px 4px}
+#averis-landing-root .av-rail-button .av-rail-icon {display:grid;place-items:center;width:68px;height:65px;border:1px solid rgba(199,160,95,.35);background:radial-gradient(ellipse,#42321eaa 0%,#150f0bb3 75%);transform:rotate(45deg);border-radius:8px;box-shadow:0 0 16px #0006,inset 0 0 15px #bc8d4e16}
+#averis-landing-root .av-rail-button .av-rail-icon i {font-size:26px;color:#e5c587;transform:rotate(-45deg)}
+#averis-landing-root .av-rail-button .av-rail-caption {font-family:Georgia,serif;font-variant:small-caps;font-size:clamp(13px,1.1vw,18px);line-height:1.2;letter-spacing:.025em;text-align:center}
+#averis-landing-root .av-rail-button:hover:not(:disabled),#averis-landing-root .av-rail-button.av-rail-active{border-color:#b5925160;background:linear-gradient(90deg,transparent,#c8a15c15,transparent);color:#ffe7aa;transform:translateY(-2px)}
+#averis-landing-root .av-rail-button:hover .av-rail-icon i,#averis-landing-root .av-rail-button.av-rail-active .av-rail-icon i{color:#ffeab7}
+#averis-landing-root .av-rail-button:disabled {opacity:.42;cursor:not-allowed}
+#averis-landing-root .av-stage-center{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;height:min(70vh,670px);gap:8px;z-index:2}
+#averis-landing-root .av-map-frame{position:relative;width:100%;height:100%;min-height:250px;overflow:hidden;border:11px solid #261c13;outline:2px solid #bd955b;box-shadow:0 0 0 7px #0c0906,0 0 0 9px #6d4d2e,0 15px 55px #000b,inset 0 0 50px #0007;background:#bba271}
+#averis-landing-root .av-map-frame:before{content:"";inset:5px;position:absolute;border:1px solid #e1c08699;pointer-events:none;z-index:4}
+#averis-landing-root .av-map-frame:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#2114093f,transparent 18%,transparent 82%,#2114093f),linear-gradient(0deg,#2114093c,transparent 20%,transparent 80%,#2114093c);pointer-events:none;z-index:3}
+#averis-landing-root .av-stage-map-viewport{position:absolute;inset:0;overflow:hidden}
+#averis-landing-root .av-stage-map-content{position:absolute;inset:0;transform-origin:center;transition:transform .2s ease}
+#averis-landing-root .av-stage-map-content>img{display:block;width:100%;height:100%;object-fit:fill;user-select:none}
+#averis-landing-root .av-corner{position:absolute;width:30px;height:30px;pointer-events:none;z-index:6;border:3px solid #e1c591}
+#averis-landing-root .av-corner-tl{top:0;left:0;border-right:0;border-bottom:0}
+#averis-landing-root .av-corner-tr{top:0;right:0;border-left:0;border-bottom:0}
+#averis-landing-root .av-corner-bl{bottom:0;left:0;border-right:0;border-top:0}
+#averis-landing-root .av-corner-br{bottom:0;right:0;border-left:0;border-top:0}
+#averis-landing-root .av-stage-pin {position:absolute;transform:translate(-50%,-50%);z-index:5;background:transparent;border:0;display:flex;align-items:center;flex-direction:column;color:#562611;text-shadow:0 0 4px #fcdf9e,0 1px 3px #f7e4be;}
+#averis-landing-root .av-stage-pin-gem {font-size:24px;filter:drop-shadow(0 2px 3px #0008)}
+#averis-landing-root .av-stage-pin-name{display:block;background:#e4c991d9;border:1px solid #74512a;color:#392717;padding:2px 5px;font-size:12px;font-weight:bold;white-space:nowrap}
+#averis-landing-root .av-stage-pin:hover .av-stage-pin-gem,#averis-landing-root .av-stage-pin.av-pin-active .av-stage-pin-gem{color:#b9391f;transform:scale(1.24)}
+#averis-landing-root .av-map-hint {font-size:11px;color:#b69f76;font-style:italic;max-width:95%;text-align:center}
+#averis-landing-root .av-stage-zoom {position:absolute;right:12px;bottom:18px;z-index:7;display:flex;align-items:center;gap:3px;background:#1d150de8;border:1px solid #947242;color:#eed3a0;padding:3px;border-radius:3px;box-shadow:0 4px 11px #0009}
+#averis-landing-root .av-stage-zoom button{width:32px;height:28px;border:0;background:transparent;color:#f1d29b;font-size:20px}
+#averis-landing-root .av-stage-zoom button:hover{background:#76502a}
+#averis-landing-root .av-stage-zoom span{font-family:Georgia,serif;font-size:11px;min-width:39px;text-align:center}
+#averis-landing-root .av-stage-footer {position:relative;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:6px 38px 19px;min-height:65px}
+#averis-landing-root .av-gm-controls {display:flex;gap:15px;flex-wrap:wrap}
+#averis-landing-root .av-footer-link {background:transparent;border:0;padding:7px 8px;color:#d9be8d;font-size:13px;letter-spacing:.02em}
+#averis-landing-root .av-footer-link:hover{color:#fff0ce;text-decoration:underline}
+#averis-landing-root .av-footer-link:disabled{opacity:.35;cursor:default}
+#averis-landing-root .av-stage-footer>.av-footer-link{justify-self:end}
+#averis-landing-root .av-footer-ornament{color:#b18a53;letter-spacing:.16em;font-size:13px}
+#averis-landing-root .av-stage-dialog {position:absolute;z-index:9;left:max(215px,18vw);right:max(215px,18vw);top:100px;bottom:78px;display:flex;flex-direction:column;min-height:0;background:linear-gradient(180deg,#241b13f5,#0e0b09f7);border:2px solid #b9935c;box-shadow:0 12px 75px #000e,0 0 0 6px #15100bd9;color:#f0d9ae}
+#averis-landing-root .av-stage-dialog-heading{height:52px;flex:0 0 auto;padding:7px 15px 7px 28px;border-bottom:1px solid #866944;display:flex;justify-content:space-between;align-items:center;color:#caaa77;font-size:12px;letter-spacing:.24em}
+#averis-landing-root .av-stage-dialog-heading button,#averis-landing-root .av-stage-info-heading button{font-size:27px;line-height:1;color:#e5c68e;background:transparent;border:0;width:34px;height:34px}
+#averis-landing-root .av-stage-dialog .av-main{flex:1;overflow:auto;scrollbar-width:thin;scrollbar-color:#8d6938 #261b14}
+#averis-landing-root .av-stage-dialog .av-page{padding:14px 24px 30px;max-width:100%}
+#averis-landing-root .av-stage-dialog .av-page-heading{padding:14px 0 24px}
+#averis-landing-root .av-stage-dialog .av-page-heading h2{font-size:30px}
+#averis-landing-root .av-stage-dialog .av-page-heading p{margin-bottom:0}
+#averis-landing-root .av-stage-dialog .av-characters{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}
+#averis-landing-root .av-stage-dialog .av-recaps{grid-template-columns:160px 1fr}
+#averis-landing-root .av-stage-dialog .av-quest-grid{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+#averis-landing-root .av-stage-info{position:absolute;z-index:8;right:clamp(14px,2.6vw,45px);top:50%;transform:translateY(-50%);width:min(305px,32vw);max-height:62vh;overflow:auto;border:1px solid #b99662;background:linear-gradient(180deg,#302116f7,#140f0af7);box-shadow:0 8px 40px #000d;padding:17px 21px;color:#e6d0a9;scrollbar-width:thin}
+#averis-landing-root .av-stage-info-heading{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#d1ab72;letter-spacing:.14em;border-bottom:1px solid #735637;padding-bottom:6px}
+#averis-landing-root .av-stage-info h3 {color:#f4d69f;font-size:22px;font-weight:normal;font-variant:small-caps;margin:18px 0 10px}
+#averis-landing-root .av-stage-info p{font-size:13px;line-height:1.55;color:#d4c09f}
+#averis-landing-root .av-stage-locations{display:flex;flex-direction:column;gap:6px}
+#averis-landing-root .av-stage-locations button{background:#47311f;border:1px solid #6f5334;color:#eed3a8;text-align:left;padding:8px 10px;font-size:13px}
+#averis-landing-root .av-stage-locations button:hover{background:#614529}
+#averis-landing-root .av-audio-chapter {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;text-align:center;flex:1;padding:15px 30px}
+#averis-landing-root .av-audio-emblem{font-size:46px;color:#d2ad71}
+#averis-landing-root .av-audio-chapter h2{margin:0;font-variant:small-caps;color:#f5ddb2;font-size:35px;font-weight:normal}
+#averis-landing-root .av-audio-chapter p{margin:0 0 10px;color:#cbb38f}
+#averis-landing-root .av-audio-chapter small{color:#b79b76}
+#averis-landing-root .av-audio-chapter button.av-gold-button{min-height:42px}
+#averis-landing-root .av-audio-chapter button:disabled{opacity:.45;cursor:default}
+@media(max-width:1120px){
+  #averis-landing-root .av-stage-layout{grid-template-columns:clamp(135px,17vw,190px) minmax(0,1fr) clamp(135px,17vw,190px);padding:0 32px;gap:11px}
+  #averis-landing-root .av-rail-button .av-rail-icon {width:54px;height:54px}
+  #averis-landing-root .av-rail-button .av-rail-icon i{font-size:21px}
+  #averis-landing-root .av-stage-dialog{left:17vw;right:17vw}
+}
+@media(max-width:760px){
+  #averis-landing-root .av-stage-title{padding:18px 45px 3px}
+  #averis-landing-root .av-stage-title h1{font-size:37px}
+  #averis-landing-root .av-stage-title h1:after{margin-top:5px}
+  #averis-landing-root .av-stage-close{top:15px;right:16px;width:30px;height:30px}
+  #averis-landing-root .av-stage-layout{grid-template-columns:1fr 1fr;grid-template-rows:minmax(190px,1fr) auto;gap:5px;min-height:0;padding:6px 15px}
+  #averis-landing-root .av-stage-center{grid-column:1/-1;grid-row:1;height:100%;min-height:190px}
+  #averis-landing-root .av-map-frame{border-width:7px;min-height:180px}
+  #averis-landing-root .av-rail{height:auto;flex-direction:column;gap:0;align-items:stretch;grid-row:2;justify-content:start}
+  #averis-landing-root .av-rail-button {min-height:44px;max-height:48px;flex-direction:row;gap:8px;justify-content:flex-start;padding:3px 9px}
+  #averis-landing-root .av-rail-button .av-rail-icon{width:29px;height:29px;border-radius:4px}
+  #averis-landing-root .av-rail-button .av-rail-icon i{font-size:14px}
+  #averis-landing-root .av-rail-button .av-rail-caption{text-align:left;font-size:12px}
+  #averis-landing-root .av-map-hint{font-size:9px}
+  #averis-landing-root .av-stage-zoom{bottom:17px}
+  #averis-landing-root .av-stage-footer{min-height:40px;padding:2px 15px 9px;grid-template-columns:1fr auto}
+  #averis-landing-root .av-footer-ornament{display:none}
+  #averis-landing-root .av-gm-controls{gap:0}
+  #averis-landing-root .av-footer-link{font-size:11px;padding:4px}
+  #averis-landing-root .av-stage-dialog{left:15px;right:15px;top:62px;bottom:42px}
+  #averis-landing-root .av-stage-info{right:12px;left:12px;top:auto;bottom:50px;transform:none;width:auto;max-height:35vh}
+  #averis-landing-root .av-stage-dialog .av-recaps{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){#averis-landing-root .av-rail-button,#averis-landing-root .av-stage-map-content {transition:none}}
+
+/* Embedded icons render even without Foundry's Font Awesome font. */
+#averis-landing-root .av-rail-button .av-rail-icon svg{display:block;transform:rotate(-45deg);color:#e5c587;width:29px;height:29px;overflow:visible}
+#averis-landing-root .av-rail-button:hover .av-rail-icon svg,#averis-landing-root .av-rail-button.av-rail-active .av-rail-icon svg{color:#ffeab7}
+@media(max-width:1120px){#averis-landing-root .av-rail-button .av-rail-icon svg{width:23px;height:23px}}
+@media(max-width:760px){#averis-landing-root .av-rail-button .av-rail-icon svg{width:16px;height:16px}}

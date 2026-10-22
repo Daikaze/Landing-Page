@@ -9,11 +9,12 @@
 | --- | --- |
 | `scripts/main.mjs` | Register settings/hooks, API, startup and socket channel. |
 | `scripts/data.mjs` | Campaign schema, editable seed data, settings persistence. |
-| `scripts/landing.mjs` | Player home screen, map/quest/recap UI, start cinematic, launch button. |
+| `scripts/landing.mjs` | Atlas-centered landing stage, six rails, public panels and pin interactions, cinematic and launcher. |
 | `scripts/editor.mjs` | GM-only ApplicationV2 editing, CRUD, map pin picker, import/export. |
 | `scripts/audio.mjs` | Local ambient and one-shot cinematic sound lifecycle. |
 | `scripts/utils.mjs` | Escape helpers and data normalization. |
-| `styles/landing.css` | Strictly scoped dark-leather, gilded-frame and parchment styles. |
+| `styles/landing.css` | Strictly scoped Classic D&D atlas rails, gilded map frame, parchment overlays and editor styles. |
+| `assets/averis-map-placeholder.svg` | Original non-canon parchment map placeholder shown until the GM selects the real atlas. |
 | `templates/editor.hbs` | GM ApplicationV2 render template. |
 
 ## Data management
