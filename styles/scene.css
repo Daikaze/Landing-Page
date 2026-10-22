@@ -1,0 +1,134 @@
+/* Averis v0.3: native Foundry Scene board. All selectors scoped, no global theme edits. */
+#averis-landing-root.av-scene-overlay {
+  position:fixed;z-index:60;inset:auto;display:block;background:transparent;
+  padding:0;margin:0;isolation:isolate;border:0;box-shadow:none;overflow:hidden;
+  color:#35210e;font-family:Georgia,"Palatino Linotype",serif;
+}
+#averis-landing-root .av-scene-frame {
+  position:relative;width:100%;height:100%;min-width:0;min-height:0;
+  display:grid;grid-template-columns:clamp(145px,19%,238px) minmax(0,1fr);gap:10px;
+  padding:clamp(13px,1.65vw,25px);background:
+    repeating-linear-gradient(5deg,transparent 0 9px,#0000000c 10px 11px,transparent 12px 32px),
+    linear-gradient(130deg,#613611,#1f1006 29%,#8f5625 52%,#32190a 77%,#75431e);
+  border:9px ridge #6c350f;box-shadow:inset 0 0 0 3px #e2ad63,inset 0 0 0 11px #311805,inset 0 0 25px 17px #0009;
+}
+#averis-landing-root .av-scene-frame:before {
+  content:"";position:absolute;inset:5px;border:2px solid #ce923f;box-shadow:0 0 0 4px #1c0d04;
+  pointer-events:none;z-index:5;
+}
+#averis-landing-root .av-roster {min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px;z-index:2}
+#averis-landing-root .av-scroll-panel {
+  min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#85551d transparent;
+  background:radial-gradient(ellipse at 43% 20%,#f0cf87,#c39649 85%,#785022);
+  border:7px ridge #835020;outline:1px solid #d5a353;
+  box-shadow:inset 0 0 20px #70400f8c,0 5px 12px #000a;
+  padding:10px 9px 15px;
+}
+#averis-landing-root .av-side-heading {
+  display:flex;align-items:center;gap:5px;justify-content:center;
+  margin:0 0 11px;color:#442308;font:700 clamp(19px,2.0vw,31px)/1.1 Georgia,serif;
+  font-variant:small-caps;text-align:center;text-shadow:0 1px #ffdc8a;
+}
+#averis-landing-root .av-side-heading:before,
+#averis-landing-root .av-side-heading:after {content:"";flex:1;height:1px;background:#784715;box-shadow:0 2px #eec879;min-width:8px;}
+#averis-landing-root .av-portrait-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;align-content:start;}
+#averis-landing-root .av-roster-person {
+  display:block;position:relative;overflow:hidden;min-width:0;aspect-ratio:0.95;min-height:50px;
+  padding:0;background:linear-gradient(135deg,#947652,#322615);border:2px solid #85501d;border-radius:0;
+  box-shadow:inset 0 0 10px #0007;line-height:1.2;transition:filter .15s;
+}
+#averis-landing-root .av-roster-person:hover {border-color:#f7dfa1;filter:brightness(1.14);}
+#averis-landing-root .av-roster-person img {width:100%;height:100%;object-fit:cover;display:block;}
+#averis-landing-root .av-silhouette {display:grid;height:100%;place-items:center;font-size:clamp(22px,3vw,45px);color:#c7a979;text-shadow:0 3px 6px #0008;}
+#averis-landing-root .av-roster-person>span:last-child:not(.av-silhouette) {position:absolute;bottom:0;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(transparent,#110b08e8);text-shadow:0 1px 2px #000;color:#f5e8d1;padding:11px 1px 2px;font-size:clamp(9px,.85vw,12px);font-weight:700;text-align:center;}
+#averis-landing-root .av-dead-heading{margin-top:18px;}
+#averis-landing-root .av-dead-grid .av-roster-person{filter:grayscale(1);}
+#averis-landing-root .av-no-dead {grid-column:1/-1;margin:2px;color:#7d5830;text-align:center;font:italic 12px Georgia,serif;}
+#averis-landing-root .av-stats-panel {overflow:hidden;min-height:136px;padding:10px 8px 9px;}
+#averis-landing-root .av-calendar {display:grid;grid-template-columns:1fr 1fr 1.55fr;gap:5px;margin-top:9px;}
+#averis-landing-root .av-calendar span {min-width:0;display:grid;place-items:center;height:44px;border:2px solid #9d611c;background:#edc574;color:#58320a;box-shadow:inset 0 0 9px #6a400d6e;font:bold clamp(12px,1.55vw,23px)/1 Georgia,serif;}
+#averis-landing-root .av-small-editor{display:block;width:100%;margin:8px 0 0;border:0;background:transparent;color:#693d17;font:11px Georgia,serif;}
+#averis-landing-root .av-scene-main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;z-index:2;}
+#averis-landing-root .av-scene-inner{
+  display:grid;grid-template-columns:clamp(100px,12%,153px) minmax(0,1fr) clamp(100px,12%,153px);
+  flex:1;min-height:0;gap:6px;
+  background:#1c130b;border:7px ridge #ad7138;outline:1px solid #e5bd70;
+  box-shadow:inset 0 0 0 2px #dda94b,0 6px 18px #0008;
+}
+#averis-landing-root .av-rail{display:flex;flex-direction:column;justify-content:space-around;align-items:center;gap:10px;min-height:0;height:auto;z-index:3;
+  background:radial-gradient(ellipse at center,#e5b873,#b7833d 90%);padding:15px 6px;}
+#averis-landing-root .av-rail-left{border-right:2px solid #88521d;}
+#averis-landing-root .av-rail-right{border-left:2px solid #88521d;}
+#averis-landing-root .av-rail-button{min-height:0;max-height:none;width:100%;display:flex;flex-direction:column;flex:1;align-items:center;justify-content:center;
+  gap:9px;border:2px solid #a87331;padding:8px 3px;border-radius:3px;
+  background:linear-gradient(#e6bf7e,#c99853);box-shadow:inset 0 1px #ffdfaa,0 3px 6px #4a2a108a;
+  color:#4c2910;text-shadow:none;transition:transform .15s,background .15s;}
+#averis-landing-root .av-rail-button .av-rail-caption{font-size:clamp(11px,1.1vw,15px);line-height:1.15;color:#4b260c;font-variant:small-caps;text-shadow:0 1px #ffdeaa;}
+#averis-landing-root .av-rail-button .av-rail-icon {transform:none;width:44px;height:44px;border-radius:50%;border:2px solid #8a5524;background:radial-gradient(#64401f,#2a170b);box-shadow:inset 0 0 0 2px #e6bd73,0 3px 5px #0005;}
+#averis-landing-root .av-rail-button .av-rail-icon svg {transform:none;width:26px;height:26px;color:#eac888;}
+#averis-landing-root .av-rail-button:hover:not(:disabled),#averis-landing-root .av-rail-button.av-rail-active {transform:translateY(-1px);background:linear-gradient(#ffe2ac,#d8aa5f);border-color:#754211;}
+#averis-landing-root .av-real-map{position:relative;min-width:0;min-height:0;overflow:hidden;background:#79643f;}
+#averis-landing-root .av-map-paper{position:absolute;inset:5px;border:3px double #9b762f;box-shadow:inset 0 0 24px #36230d;overflow:hidden;background:#cfb67f;}
+#averis-landing-root .av-map-area {position:absolute;inset:0;overflow:hidden;}
+#averis-landing-root .av-map-zoomable{position:absolute;inset:0;transform-origin:center;transition:transform .15s;}
+#averis-landing-root .av-map-zoomable>img{display:block;width:100%;height:100%;object-fit:fill;user-select:none;}
+#averis-landing-root .av-onmap-heading{position:absolute;top:9px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  padding:4px 22px 6px;color:#533013;background:#e8cb91ed;border:2px solid #8b6029;box-shadow:0 2px 5px #0006;
+  font:700 clamp(20px,2vw,36px)/1 Georgia,serif;letter-spacing:.12em;text-transform:uppercase;z-index:4;pointer-events:none;}
+#averis-landing-root .av-scene-pin{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;z-index:4;background:transparent;border:0;color:#64260b;text-shadow:0 0 4px #ffdead;}
+#averis-landing-root .av-scene-pin b{font-size:24px;}
+#averis-landing-root .av-scene-pin span{display:block;padding:2px 5px;border:1px solid #94682d;background:#f1dcacd9;color:#4a270d;text-shadow:none;white-space:nowrap;font-size:11px;}
+#averis-landing-root .av-scene-zoom{position:absolute;right:14px;bottom:12px;display:flex;align-items:center;gap:2px;z-index:4;padding:3px;background:#2d1a0eea;color:#e9c78d;border:1px solid #c49a54;}
+#averis-landing-root .av-scene-zoom button{border:0;background:transparent;color:inherit;min-width:28px;min-height:25px;font-size:19px;}
+#averis-landing-root .av-scene-zoom span{font:11px Georgia,serif;min-width:32px;text-align:center;}
+#averis-landing-root .av-scene-themes{display:flex;align-items:center;justify-content:center;gap:5px;min-height:51px;padding-top:6px;}
+#averis-landing-root .av-scene-themes button{width:clamp(56px,12vw,120px);height:42px;border:2px solid #4a270e;box-shadow:0 0 0 1px #c69d5b,inset 0 0 15px #0008;position:relative;overflow:hidden;}
+#averis-landing-root .av-scene-themes button span{position:absolute;bottom:0;left:0;right:0;color:#fff8d9;text-shadow:0 1px 3px #000;font-size:10px;background:#0007;}
+#averis-landing-root .av-theme-spring{background:linear-gradient(110deg,#559139,#bbdf50,#327344);}
+#averis-landing-root .av-theme-summer{background:linear-gradient(110deg,#837e18,#e6c12d,#947228);}
+#averis-landing-root .av-theme-autumn{background:linear-gradient(110deg,#a74810,#de9a3c,#84350b);}
+#averis-landing-root .av-theme-winter{background:linear-gradient(110deg,#718d9c,#d1dbe2,#53626d);}
+#averis-landing-root .av-scene-themes button.av-theme-active{outline:3px solid #f7d48f;outline-offset:0;}
+#averis-landing-root .av-mood-winter .av-map-zoomable>img{filter:saturate(.7) hue-rotate(9deg);}
+#averis-landing-root .av-mood-autumn .av-map-zoomable>img{filter:sepia(.17) saturate(1.2);}
+#averis-landing-root .av-mood-spring .av-map-zoomable>img{filter:saturate(1.1);}
+#averis-landing-root .av-scene-bottom{min-height:30px;display:flex;align-items:center;justify-content:space-between;gap:5px;}
+#averis-landing-root .av-scene-bottom button{border:0;background:transparent;color:#edc890;font:11px Georgia,serif;padding:3px 7px;}
+#averis-landing-root .av-scene-bottom button:hover{text-decoration:underline;color:#fff5d3;}
+#averis-landing-root .av-stage-dialog{position:absolute;left:clamp(15px,12%,165px);right:clamp(15px,12%,165px);top:7%;bottom:13%;background:#23180ff7;z-index:11;}
+#averis-landing-root .av-stage-info{position:absolute;z-index:11;right:8px;top:12%;transform:none;width:min(310px,80%);max-height:76%;}
+#averis-landing-root .av-hero-info .av-person{display:block;padding:9px;}
+#averis-landing-root .av-hero-info .av-portrait{width:100%;height:170px;margin-bottom:6px;}
+#averis-landing-root .av-hero-info .av-person-copy h3{font-size:20px;}
+#averis-landing-root .av-stage-dialog .av-characters{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+@media(max-width:1050px){
+ #averis-landing-root .av-scene-frame{grid-template-columns:clamp(115px,19%,192px) minmax(0,1fr);padding:14px;gap:6px;}
+ #averis-landing-root .av-scene-inner{grid-template-columns:clamp(65px,13%,95px) minmax(0,1fr) clamp(65px,13%,95px);gap:1px;}
+ #averis-landing-root .av-rail{padding:7px 2px;gap:5px;}
+ #averis-landing-root .av-rail-button{padding:4px 2px;gap:4px;}
+ #averis-landing-root .av-rail-button .av-rail-icon{width:29px;height:29px;}
+ #averis-landing-root .av-rail-button .av-rail-icon svg{width:17px;height:17px;}
+ #averis-landing-root .av-rail-button .av-rail-caption{font-size:11px;}
+ #averis-landing-root .av-roster-person{min-height:36px;}
+ #averis-landing-root .av-stats-panel{min-height:106px;}
+ #averis-landing-root .av-calendar span{height:31px;}
+}
+@media(max-width:700px){
+ #averis-landing-root .av-scene-frame{grid-template-columns:112px minmax(0,1fr);padding:9px;gap:5px;border-width:5px;}
+ #averis-landing-root .av-scroll-panel{padding:5px 3px;border-width:4px;}
+ #averis-landing-root .av-side-heading{font-size:17px;}
+ #averis-landing-root .av-roster-person{min-height:29px;border-width:1px;}
+ #averis-landing-root .av-roster-person>span:last-child:not(.av-silhouette){font-size:8px;}
+ #averis-landing-root .av-stats-panel{min-height:89px;}
+ #averis-landing-root .av-calendar{gap:2px;}
+ #averis-landing-root .av-calendar span{font-size:11px;height:28px;border-width:1px;}
+ #averis-landing-root .av-scene-inner{grid-template-columns:58px minmax(0,1fr) 58px;border-width:4px;}
+ #averis-landing-root .av-rail-button .av-rail-caption{font-size:9px;}
+ #averis-landing-root .av-rail-button .av-rail-icon{width:26px;height:26px;}
+ #averis-landing-root .av-onmap-heading{font-size:17px;padding:4px 9px;}
+ #averis-landing-root .av-stage-dialog{left:4px;right:4px;top:5%;bottom:11%;}
+ #averis-landing-root .av-stage-dialog .av-page{padding:6px;}
+ #averis-landing-root .av-scene-themes{min-height:42px;}
+ #averis-landing-root .av-scene-themes button{width:45px;height:30px;}
+}
+@media(prefers-reduced-motion:reduce){#averis-landing-root .av-rail-button,#averis-landing-root .av-map-zoomable{transition:none;}}

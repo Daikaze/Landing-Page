@@ -1,8 +1,8 @@
 {
   "id": "averis-landing",
   "title": "Averis Landing Page",
-  "description": "Averis fantasy atlas landing screen for Foundry VTT v14: central world map, six campaign controls, quests, recaps, cinematic, audio and GM editor.",
-  "version": "0.2.0",
+  "description": "Native Foundry VTT v14 Averis Landing Scene with character/dead roster, central atlas, quest board, session recaps, cinematic start, audio and GM editor.",
+  "version": "0.3.0",
   "authors": [
     {
       "name": "Daikaze"
@@ -16,7 +16,8 @@
     "scripts/main.mjs"
   ],
   "styles": [
-    "styles/landing.css"
+    "styles/landing.css",
+    "styles/scene.css"
   ],
   "languages": [
     {

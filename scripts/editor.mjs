@@ -23,7 +23,7 @@ function field(name,label,value,{kind="text",min=null,max=null,help="",options=n
   return `<label class="av-edit-field"><span>${esc(label)}</span>${control}${hint}</label>`;
 }
 function heroSettings(data) {
-  return `<div class="av-edit-form-panel"><h2>Campaign Overview</h2><p>General information displayed to your players.</p><form data-av-setting-form="general">${field("title","Campaign Title",data.title)}${field("subtitle","Campaign Subtitle",data.subtitle)}${field("worldYear","Current World Year",data.worldYear)}${field("introduction","Landing Page Introduction",data.introduction,{kind:"textarea"})}${field("backgroundImage","Background Art",data.backgroundImage,{kind:"image",help:"A relative Foundry file path works best (e.g. worlds/your-world/art/background.webp)."})}${field("mapImage","World Map Image",data.mapImage,{kind:"image",help:"Map coordinates are percentages; choose your canonical map before positioning markers."})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Overview</button></div></form></div>`;
+  return `<div class="av-edit-form-panel"><h2>Campaign Overview</h2><p>General information shown in your Averis Foundry Scene.</p><form data-av-setting-form="general">${field("title","Campaign Title",data.title)}${field("subtitle","Campaign Subtitle",data.subtitle)}${field("worldDay","World Day",data.worldDay??18)}${field("worldMonth","World Month",data.worldMonth??2)}${field("worldYear","Current World Year",data.worldYear)}${field("introduction","Landing Page Introduction",data.introduction,{kind:"textarea"})}${field("backgroundImage","Background Art",data.backgroundImage,{kind:"image",help:"A relative Foundry file path works best (e.g. worlds/your-world/art/background.webp)."})}${field("mapImage","World Map Image",data.mapImage,{kind:"image",help:"Map coordinates are percentages; choose your canonical map before positioning markers."})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Overview</button></div></form></div>`;
 }
 function cinematicSettings(data) {
   return `<div class="av-edit-form-panel"><h2>Session Intro & Sound</h2><p>Start Session broadcasts a synchronized title card, then activates the selected scene.</p><form data-av-setting-form="cinematic">${field("chapterTitle","Chapter Title",data.chapterTitle)}${field("chapterSubtitle","Chapter Subtitle",data.chapterSubtitle)}${field("targetSceneId","Scene to Activate",data.targetSceneId,{kind:"select",options:[{value:"",label:"No scene activation"},...game.scenes.contents.map(s=>({value:s.id,label:s.name}))]})}${field("cinematicSeconds","Cinematic Duration (seconds)",data.cinematicSeconds,{kind:"number",min:2,max:20})}${field("landingMusic","Landing Ambience (audio path)",data.landingMusic,{kind:"audio"})}${field("cinematicMusic","Cinematic Music (audio path)",data.cinematicMusic,{kind:"audio"})}${field("volume","Music Volume (0-1)",data.volume,{kind:"number",min:0,max:1})}${field("particles","Animated Dust & Particles",data.particles,{kind:"checkbox"})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Intro & Sound</button></div></form></div>`;
@@ -38,7 +38,17 @@ function blank(type) {
   return result;
 }
 function entryFormFields(type, entry) {
-  return ENTRY_TYPES[type].fields.map(f=>field(f.name,f.label,entry[f.name], {kind:f.kind,min:f.min,max:f.max,options:f.values})).join("");
+  return ENTRY_TYPES[type].fields.map(f => {
+    if(type==="characters" && f.name==="actorId") {
+      const choices=[{value:"",label:"Manual portrait / no Actor"},
+        ...(game.actors?.contents??[]).filter(a=>a.type==="character")
+          .sort((a,b)=>a.name.localeCompare(b.name))
+          .map(a=>({value:a.id,label:a.name}))];
+      if(entry.actorId&&!choices.some(o=>o.value===entry.actorId))choices.push({value:entry.actorId,label:`Missing Actor (${entry.actorId})`});
+      return field(f.name,"Foundry Character Actor",entry[f.name],{kind:"select",options:choices});
+    }
+    return field(f.name,f.label,entry[f.name],{kind:f.kind,min:f.min,max:f.max,options:f.values});
+  }).join("");
 }
 function entryEditor(data, type, selectedId) {
   const cfg=ENTRY_TYPES[type];
@@ -47,7 +57,7 @@ function entryEditor(data, type, selectedId) {
   const current=selected || blank(type);
   const preview=type==="locations"?mapPicker(data,current):"";
   const list=items.map(e=>`<button type="button" class="av-editor-entry ${selected?.id===e.id?"is-selected":""}" data-av-select="${esc(e.id)}"><strong>${esc(e[cfg.titleField]||"Untitled")}</strong><small>${esc(type==="recaps"?`Session ${e.session}`:type==="quests"?e.status:type==="locations"?(e.discovered?"Discovered":"Hidden"):e.subtitle||"")}</small></button>`).join("");
-  return `<div class="av-editor-collection"><div class="av-editor-list"><div class="av-editor-list-head"><strong>${esc(cfg.singular)} Entries (${items.length})</strong><button type="button" data-av-new="${esc(type)}" title="Add entry">+ Add</button></div>${list||`<p class="av-muted">No entries yet.</p>`}</div><div class="av-edit-form-panel"><h2>${selected?"Edit":"Add"} ${esc(cfg.singular)}</h2><p>Only published content will appear in the player landing page.</p><form data-av-entry-form="${esc(type)}" data-av-id="${selected?.id || current.id}">${entryFormFields(type,current)}${preview}<div class="av-editor-actions"><button type="submit" class="av-save">${selected?"Save Changes":"Add Entry"}</button>${selected?`<button type="button" class="av-danger" data-av-delete="${esc(selected.id)}">Delete</button>`:""}</div></form></div></div>`;
+  return `<div class="av-editor-collection"><div class="av-editor-list"><div class="av-editor-list-head"><strong>${esc(cfg.singular)} Entries (${items.length})</strong>${type==="characters"?'<button type="button" data-av-import-actors="true" title="Add Foundry PC Actors to the roster">Import PCs</button>':""}<button type="button" data-av-new="${esc(type)}" title="Add entry">+ Add</button></div>${list||`<p class="av-muted">No entries yet.</p>`}</div><div class="av-edit-form-panel"><h2>${selected?"Edit":"Add"} ${esc(cfg.singular)}</h2><p>Only published content will appear in the player landing page.</p><form data-av-entry-form="${esc(type)}" data-av-id="${selected?.id || current.id}">${entryFormFields(type,current)}${preview}<div class="av-editor-actions"><button type="submit" class="av-save">${selected?"Save Changes":"Add Entry"}</button>${selected?`<button type="button" class="av-danger" data-av-delete="${esc(selected.id)}">Delete</button>`:""}</div></form></div></div>`;
 }
 function mapPicker(data, entry) {
   const bg=safeAsset(data.mapImage);
@@ -98,6 +108,23 @@ export class AverisLandingEditor extends HandlebarsApplicationMixin(ApplicationV
     if(btn.dataset.avSelect) {this.selectedId=btn.dataset.avSelect;await this._renderKeepScroll();return;}
     if(btn.dataset.avNew) {this.selectedId=null;await this._renderKeepScroll();return;}
     if(btn.dataset.avDelete) {await this._delete(btn.dataset.avDelete);return;}
+    if(btn.dataset.avImportActors) {
+      const data=campaign();
+      let imported=0;
+      for(const actor of (game.actors?.contents??[]).filter(a=>a.type==="character")) {
+        const already=data.characters.find(c=>c.actorId===actor.id || c.name.toLowerCase().trim()===actor.name.toLowerCase().trim());
+        if(already) {
+          if(!already.actorId)already.actorId=actor.id;
+          continue;
+        }
+        data.characters.push({id:newId(),name:actor.name,subtitle:"Adventurer",portrait:"",description:"",actorId:actor.id,visible:true,dead:false});
+        imported++;
+      }
+      await saveCampaign(data);
+      ui.notifications?.info(`Averis: Imported ${imported} new characters and linked matching roster entries.`);
+      await this._renderKeepScroll();
+      return;
+    }
     if(btn.dataset.avBrowse) {
       const input=this.element.querySelector(`[name="${btn.dataset.avBrowse}"]`);
       if(input) new FilePicker({type:btn.dataset.avFiletype||"image",current:input.value,callback:path=>{input.value=path;input.dispatchEvent(new Event("change",{bubbles:true}));}}).render({force:true});
@@ -113,7 +140,7 @@ export class AverisLandingEditor extends HandlebarsApplicationMixin(ApplicationV
     const formData=new FormData(form);
     const data=campaign();
     if(form.dataset.avSettingForm==="general") {
-      for(const key of ["title","subtitle","worldYear","introduction","backgroundImage","mapImage"]) data[key]=String(formData.get(key)??"").trim();
+      for(const key of ["title","subtitle","worldDay","worldMonth","worldYear","introduction","backgroundImage","mapImage"]) data[key]=String(formData.get(key)??"").trim();
     } else if(form.dataset.avSettingForm==="cinematic") {
       for(const key of ["chapterTitle","chapterSubtitle","targetSceneId","landingMusic","cinematicMusic"]) data[key]=String(formData.get(key)??"").trim();
       data.cinematicSeconds=clamp(formData.get("cinematicSeconds"),2,20);

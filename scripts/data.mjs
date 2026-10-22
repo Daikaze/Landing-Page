@@ -6,6 +6,8 @@ export const DEFAULT_CAMPAIGN = {
   title: "AVERIS",
   subtitle: "Chronicles of the Fractured Barriers",
   worldYear: "1024",
+  worldDay: "18",
+  worldMonth: "02",
   introduction: "Four barriers guard the realms. Across Averis, forgotten guardians and ancient secrets are beginning to awaken.",
   backgroundImage: "",
   mapImage: "",
@@ -18,13 +20,13 @@ export const DEFAULT_CAMPAIGN = {
   targetSceneId: "",
   particles: true,
   characters: [
-    {id:"char-dimir",name:"Dimir",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-rashira",name:"Rashira Krat",subtitle:"Sorcerer · House Krat",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-erika",name:"Erika",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-sindy",name:"Sindy",subtitle:"Half-Dragon",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-sunless",name:"Sunless",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-noctis",name:"Noctis",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true},
-    {id:"char-heinrich",name:"Heinrich",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true}
+    {id:"char-dimir",name:"Dimir",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-rashira",name:"Rashira Krat",subtitle:"Sorcerer · House Krat",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-erika",name:"Erika",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-sindy",name:"Sindy",subtitle:"Half-Dragon",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-sunless",name:"Sunless",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-noctis",name:"Noctis",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-heinrich",name:"Heinrich",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false}
   ],
   quests: [
     {id:"q-barrier",title:"The Broken Barrier",category:"Main",status:"Active",progress:80,description:"Uncover the secret of the barriers and Yggsadril.",journalUuid:"",visible:true},
@@ -48,7 +50,8 @@ export const ENTRY_TYPES = {
       {name:"portrait",label:"Portrait (image path)",kind:"image"},
       {name:"actorId",label:"Foundry Actor ID (optional)",kind:"text"},
       {name:"description",label:"Public Description",kind:"textarea"},
-      {name:"visible",label:"Visible to players",kind:"checkbox"}
+      {name:"visible",label:"Visible to players",kind:"checkbox"},
+      {name:"dead",label:"Fallen / move to Dead panel",kind:"checkbox"}
     ]
   },
   quests: {

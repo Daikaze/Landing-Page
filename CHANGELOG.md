@@ -19,3 +19,13 @@
 - Added direct GitHub manifest installation and persistent install ZIP URL.
 - Basic mock-browser and syntax tests passed; needs in-world Foundry v14 verification.
 - Player-hidden UI items are not confidential server-side data.
+
+## v0.3.0 — Native Scene Edition (2026-10-22)
+
+- Rebuild as a real navigable, activatable Foundry v14 Scene flagged to the module. No fullscreen web-style popup or separate tab.
+- Add v14 Level background, canvasReady/canvasTearDown view lifecycle, and responsive canvas-bound controls.
+- Classic D&D wood frame, left Players / Dead / Stats panel, central world map, three left and three right buttons, seasonal thumbnails.
+- Fix major button interactions and cinematic guard when destination scene is missing; start session now activates destination Scene.
+- Add day and month settings, fallen character status, Actor auto-lookup and Import PCs functionality.
+- Preserve previous world campaign records; upgrade package and Foundry-installable manifest ZIP.
+- Verify Javascript syntax, Chromium GM/editor/scene smoke tests on wide and narrow viewports; pending validation in real Foundry v14.

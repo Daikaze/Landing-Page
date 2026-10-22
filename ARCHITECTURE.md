@@ -1,61 +1,34 @@
-# Averis Landing — Architecture
+# Averis Landing Scene — design v0.3.0
 
-## Supported runtime
-- Foundry VTT v14, D&D 5e 5.3.3 (and other systems for basic features).
-- ES Modules; modern ApplicationV2 GM editor; no third-party dependencies.
+## Lifecycle
+
+1. `scripts/main.mjs` registers world settings and hooks.
+2. GM ready → `scripts/scene.mjs#ensureLandingScene()` locates or creates a real Foundry Scene flagged `flags.averis-landing.landingScene=true`, configured as gridless with one v14 Scene Level and an SVG table backdrop. The Scene is not automatically activated, to avoid dragging players from their current game.
+3. `canvasReady` checks `canvas.scene.getFlag()`. Only if it matches the Landing Scene does `mountSceneOverlay()` add the isolated UI to the canvas rectangle. No new tabs/windows for the player layout. `canvasTearDown` removes it and stops audio.
+4. `#board` (or `#canvas`) DOM rect and `#sidebar` bounds determine UI positioning. Buttons are scoped to the scene-specific root and no global Foundry UI styles are touched.
+5. `game.modules.get('averis-landing').api.show()` activates the native Scene with `pullUsers:true`. The GM may instead use the normal Scene navigation.
+6. GM Editor stays a Foundry ApplicationV2 as native editing interface, while the landing dashboard is scene-bound.
 
 ## Modules
-| File | Responsibility |
-| --- | --- |
-| `scripts/main.mjs` | Register settings/hooks, API, startup and socket channel. |
-| `scripts/data.mjs` | Campaign schema, editable seed data, settings persistence. |
-| `scripts/landing.mjs` | Atlas-centered landing stage, six rails, public panels and pin interactions, cinematic and launcher. |
-| `scripts/editor.mjs` | GM-only ApplicationV2 editing, CRUD, map pin picker, import/export. |
-| `scripts/audio.mjs` | Local ambient and one-shot cinematic sound lifecycle. |
-| `scripts/utils.mjs` | Escape helpers and data normalization. |
-| `styles/landing.css` | Strictly scoped Classic D&D atlas rails, gilded map frame, parchment overlays and editor styles. |
-| `assets/averis-map-placeholder.svg` | Original non-canon parchment map placeholder shown until the GM selects the real atlas. |
-| `templates/editor.hbs` | GM ApplicationV2 render template. |
 
-## Data management
+- `data.mjs`: world config, seed roster, CRUD schema, safe public entry filters
+- `scene.mjs`: Scene lifecycle, player/GM navigation and permissions
+- `landing.mjs`: roster, atlas/quest/recap views, button delegation, cinematic and socket controls
+- `editor.mjs`: ApplicationV2 editor with map position picker, Actor linking, save/import/export
+- `audio.mjs`: local ambient and cinematic audio
+- `styles/landing.css`: legacy feature/detail/editor styles, all scoped
+- `styles/scene.css`: redesigned frame, parchment panels, balanced responsive scene controls
+- `assets/landing-board.svg`: underlying Foundry v14 Scene Level background
+- `assets/averis-map-placeholder.svg`: deliberately non-canon placeholder until GM selects map
 
-The `averis-landing.campaign` world setting is an editable object with these main collections:
+## Scene vs modal
 
-```json
-{
-  "characters": [{"id":"...","name":"...","subtitle":"...","portrait":"...","actorId":"...","visible":true}],
-  "locations": [{"id":"...","name":"...","x":50,"y":50,"discovered":true,"sceneId":"..."}],
-  "quests": [{"id":"...","title":"...","category":"Main","status":"Active","progress":0,"journalUuid":"...","visible":true}],
-  "recaps": [{"id":"...","session":"23","title":"...","summary":"...","visible":true}]
-}
-```
+The module's primary UI exists only while the Foundry **Averis Landing** Scene is being viewed. Detail panels appear over the map within the Scene and can be closed with `×` or the related close control. Changing to any other Scene removes the entire overlay. It is not a website dashboard and does not change general Foundry UI.
 
-The world setting is readable by players. The GM-only editor filters hidden entries in UI but **does not secure the underlying setting data**. To keep true spoilers secret, use GM-only Foundry Journals and only put non-secret summaries in the landing data. Future versions may use a server-side private store with filtered published snapshots.
+## Data / permissions
 
-## Start Session flow
+Save world configuration as a Foundry world setting, retaining existing v0.2 records. GM-only controls check `game.user.isGM`, linked Actor sheets and linked Journals check Foundry permissions. Quest status and map discovery are not a security boundary because world settings are readable.
 
-1. GM presses Start Session.
-2. Persist `sessionOpen = false` so newly connected players will not receive a stale landing page.
-3. Broadcast `{type:"start", gmId: ...}` using the Foundry module socket channel.
-4. Each online client renders their own local cinematic overlay and plays locally configured audio (subject to browser autoplay restrictions).
-5. After the GM's cinematic finishes (or GM skips it), the GM activates the configured Foundry Scene. Foundry handles scene navigation.
-6. Overlays are cleaned up independently for each client; all local audio instances are stopped.
+## Testing
 
-`game.modules.get('averis-landing').api` exposes `open(tab)`, `close()`, `editor()` and GM-only `show()`.
-
-## Compatibility principles
-
-- `#averis-landing-root`, `#averis-cinematic`, `.averis-editor-window` and `#averis-landing-launcher` are the *only* CSS roots.
-- No overrides of `body`, sidebar classes, canvas or other module global styles.
-- No actor updates, chat mutations or token modifications.
-- GM-only save and editor checks.
-- UI escaping in all user-editable strings; image/audio sources reject scripting schemes.
-- Browser-level smoke testing and Node syntax checks are supplied in `tests/` in the development folder, but tests are excluded from the install ZIP.
-
-## Next milestones
-
-1. Preview the module in the real Foundry v14 environment and resolve any UI integration issues.
-2. Add a module dashboard sidebar button and optional GM Help integration (journals, session journal source, quests).
-3. Add a configurable panel layout with drag/drop and multiple Classic D&D skins.
-4. Implement true GM-private source storage with separately published player snapshots.
-5. Enhance map interaction: pan, location categories, scene thumbnails, fog-of-war and discovery cues.
+`tests/scene-test.py` runs a local Chromium smoke test with mocked Foundry v14 world, Scene creation, Scene viewing, UI, ApplicationV2 and socket operations; tests wide and narrow viewport, major buttons, hero/dead, stats, season, zoom, GM Editor, cinematic and leaving Scene. This is **not** a real Foundry integration test.

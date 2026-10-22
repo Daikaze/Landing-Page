@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+<defs>
+ <linearGradient id="wood" x2="1" y2="1"><stop stop-color="#2a170b"/><stop offset=".38" stop-color="#6c3e18"/><stop offset=".58" stop-color="#2a1609"/><stop offset="1" stop-color="#81451b"/></linearGradient>
+ <radialGradient id="inside"><stop stop-color="#76502d"/><stop offset=".7" stop-color="#372515"/><stop offset="1" stop-color="#1c120c"/></radialGradient>
+ <pattern id="grain" width="37" height="54" patternUnits="userSpaceOnUse"><path d="M5 0q-5 27 2 54m14-54q8 23-1 54m12-54q-6 28 4 54" stroke="#120802" stroke-width="2" opacity=".22" fill="none"/></pattern>
+</defs>
+<rect width="1920" height="1080" fill="url(#wood)"/><rect width="1920" height="1080" fill="url(#grain)"/>
+<rect x="16" y="16" width="1888" height="1048" rx="14" fill="#140e08" stroke="#aa6628" stroke-width="7"/>
+<rect x="31" y="31" width="1858" height="1018" rx="8" fill="url(#inside)" stroke="#d19d4c" stroke-width="5"/>
+<rect x="43" y="43" width="1834" height="994" fill="none" stroke="#160c07" stroke-width="9"/>
+<rect x="54" y="54" width="1812" height="972" fill="none" stroke="#b17832" stroke-width="2"/>
+<path d="M44 112Q44 44 112 44M1808 44Q1876 44 1876 112M44 968Q44 1036 112 1036M1808 1036Q1876 1036 1876 968" fill="none" stroke="#daa457" stroke-width="8"/>
+</svg>

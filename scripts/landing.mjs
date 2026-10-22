@@ -1,62 +1,83 @@
 import {campaign, publicEntries, MODULE_ID, SETTINGS} from "./data.mjs";
 import {esc, icon, safeAsset, clamp, makeTextParagraphs} from "./utils.mjs";
 import {audioPlaying, startAmbient, stopAmbient, playCinematicMusic, stopCinematicMusic} from "./audio.mjs";
+import {landingScene, viewLandingScene, viewingLandingScene} from "./scene.mjs";
 
 let activeTab = "home";
 let selectedLocation = null;
 let selectedRecap = null;
+let selectedHero = null;
 let filterQuests = "All";
 let mapZoom = 1;
+let theme = "summer";
 let editorHandler = null;
 let cinematicRunning = false;
 let cutsceneTimeout = null;
 let transitionSerial = 0;
-const SECTION_NAMES = {home:"Averis", characters:"Character Showcase", map:"Interactive World Map", quests:"Quest Board", recaps:"Session Recap", audio:"Music & Effects"};
+const SECTION_NAMES = {home:"Averis",characters:"Character Showcase",map:"World Atlas",quests:"Quest Board",recaps:"Session Recap",audio:"Music & Effects"};
+const PLACEHOLDER_MAP = "modules/averis-landing/assets/averis-map-placeholder.svg";
 
 export function setEditorHandler(callback) { editorHandler = callback; }
 export function landingIsOpen() { return !!document.getElementById("averis-landing-root"); }
-
 export function installLauncher() {
-  if (document.getElementById("averis-landing-launcher")) return;
-  const button = document.createElement("button");
-  button.id = "averis-landing-launcher";
-  button.type = "button";
-  button.title = "Open Averis Landing Page";
-  button.setAttribute("aria-label","Open Averis Landing Page");
-  button.innerHTML = `${icon("compass")}<span>Averis</span>`;
-  button.addEventListener("click", () => openLanding());
+  if(document.getElementById("averis-landing-launcher"))return;
+  const button=document.createElement("button");
+  button.id="averis-landing-launcher";
+  button.type="button";
+  button.title="View the Averis Scene";
+  button.innerHTML=`${icon("compass")}<span>Averis</span>`;
+  button.addEventListener("click",()=>void openLanding());
   document.body.append(button);
   refreshLauncher();
 }
 export function refreshLauncher() {
-  const button = document.getElementById("averis-landing-launcher");
-  if (!button) return;
-  button.hidden = !game.settings.get(MODULE_ID, SETTINGS.showLauncher) || landingIsOpen();
+  const button=document.getElementById("averis-landing-launcher");
+  if(button)button.hidden=!game.settings.get(MODULE_ID,SETTINGS.showLauncher) || viewingLandingScene();
 }
-export function openLanding(tab = "home") {
-  if (cinematicRunning) return;
-  if (!(tab in SECTION_NAMES)) tab = "home";
-  activeTab = tab;
-  if (!landingIsOpen()) {
-    const root = document.createElement("section");
-    root.id = "averis-landing-root";
-    root.setAttribute("role","dialog");
-    root.setAttribute("aria-label","Averis campaign landing page");
-    root.addEventListener("click", onClick);
-    document.body.append(root);
-  }
-  renderLanding();
-  refreshLauncher();
+export async function openLanding(tab="home") {
+  if(cinematicRunning)return;
+  activeTab=tab in SECTION_NAMES?tab:"home";
+  await viewLandingScene();
+  if(viewingLandingScene())mountSceneOverlay();
 }
 export async function closeLanding() {
   document.getElementById("averis-landing-root")?.remove();
   await stopAmbient();
   refreshLauncher();
 }
-
-// Full-screen campaign table, not a website-style navbar. The reference layout
-// uses three unobtrusive icon controls on each side of the central map.
-const PLACEHOLDER_MAP = "modules/averis-landing/assets/averis-map-placeholder.svg";
+function positionOverlay() {
+  const root=document.getElementById("averis-landing-root");
+  if(!root)return;
+  const board=document.querySelector("#board") || document.querySelector("#canvas");
+  const bounds=board?.getBoundingClientRect();
+  const top=Math.max(0,bounds?.top??0);
+  const left=Math.max(0,bounds?.left??0);
+  let right=Math.min(window.innerWidth,bounds?.right??window.innerWidth);
+  let bottom=Math.min(window.innerHeight,bounds?.bottom??window.innerHeight);
+  const sidebar=document.querySelector("#sidebar");
+  const sb=sidebar?.getBoundingClientRect();
+  if(sb && sb.width>100 && sb.left>left+300 && sb.left<right && sb.height>100)right=Math.min(right,sb.left);
+  root.style.left=`${left}px`;
+  root.style.top=`${top}px`;
+  root.style.width=`${Math.max(350,right-left)}px`;
+  root.style.height=`${Math.max(300,bottom-top)}px`;
+}
+window.addEventListener("resize",positionOverlay);
+export function mountSceneOverlay() {
+  if(!viewingLandingScene()) {document.getElementById("averis-landing-root")?.remove();refreshLauncher();return;}
+  let root=document.getElementById("averis-landing-root");
+  if(!root) {
+    root=document.createElement("section");
+    root.id="averis-landing-root";
+    root.className="av-scene-overlay";
+    root.setAttribute("aria-label","Averis Landing Scene controls");
+    root.addEventListener("click",onClick);
+    document.body.append(root);
+  }
+  positionOverlay();
+  renderLanding();
+  refreshLauncher();
+}
 function stageIcon(name) {
   const art={
     heroes:'<circle cx="8.5" cy="8" r="2.8"/><circle cx="16.8" cy="9" r="2.3"/><path d="M2.5 19c0-4 2.4-6 6-6s6 2 6 6M14.6 14c3 0 5.3 1.8 5.3 5"/>',
@@ -70,24 +91,11 @@ function stageIcon(name) {
 }
 function stageButton(label, symbol, action, side) {
   const isTab = ["characters","map","quests","recaps"].includes(action);
-  const disabled = action === "start" && !game.user.isGM;
+  const disabled = false;
   const isActive = isTab && activeTab === action;
   const attribute = isTab ? `data-av-tab="${action}"` : `data-av-action="${action}"`;
-  return `<button type="button" class="av-rail-button ${isActive?"av-rail-active":""}" ${attribute} ${disabled?'disabled title="Only the GM can start a session"':''} aria-label="${esc(label)}" aria-pressed="${isActive}">
+  return `<button type="button" class="av-rail-button ${isActive?"av-rail-active":""}" ${attribute} aria-label="${esc(label)}" aria-pressed="${isActive}">
     <span class="av-rail-icon">${stageIcon(symbol)}</span><span class="av-rail-caption">${esc(label)}</span></button>`;
-}
-function stageMap(data) {
-  const src = safeAsset(data.mapImage) || PLACEHOLDER_MAP;
-  const isDemo = !safeAsset(data.mapImage);
-  const places=publicEntries(data.locations).filter(l=>game.user.isGM || l.discovered !== false);
-  const pins=places.map(l=>`<button type="button" class="av-stage-pin ${selectedLocation===l.id?"av-pin-active":""}" title="${esc(l.name)}" style="left:${clamp(l.x,0,100)}%;top:${clamp(l.y,0,100)}%" data-av-location="${esc(l.id)}" aria-label="${esc(l.name)}"><span class="av-stage-pin-gem">✦</span><span class="av-stage-pin-name">${esc(l.name)}</span></button>`).join("");
-  return `<div class="av-stage-center" aria-label="Map of Averis">
-      <div class="av-map-frame"><div class="av-stage-map-viewport">
-        <div class="av-stage-map-content" style="transform:scale(${mapZoom})"><img src="${esc(src)}" alt="${isDemo?"Decorative fantasy map placeholder":"Averis world map"}" draggable="false">${isDemo?"":pins}</div>
-      </div><span class="av-corner av-corner-tl"></span><span class="av-corner av-corner-tr"></span><span class="av-corner av-corner-bl"></span><span class="av-corner av-corner-br"></span></div>
-      ${isDemo?`<div class="av-map-hint">Illustrative map — ${game.user.isGM?"select the actual map in GM Editor":"map will be revealed by your GM"}</div>`:""}
-      <div class="av-stage-zoom"><button type="button" data-av-action="zoom-out" aria-label="Zoom map out">−</button><span>${Math.round(mapZoom*100)}%</span><button type="button" data-av-action="zoom-in" aria-label="Zoom map in">+</button></div>
-    </div>`;
 }
 function mapLocationsPanel(data) {
   const places=publicEntries(data.locations).filter(l=>game.user.isGM || l.discovered !== false);
@@ -107,14 +115,14 @@ function audioPanel(data) {
 }
 function personCard(entry) {
   // Linked Actor information is used only when this user has at least OBSERVER permission.
-  const actor = entry.actorId ? game.actors.get(entry.actorId) : null;
+  const actor = linkedActor(entry);
   const canInspect = !!actor && actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER);
   const src = safeAsset(entry.portrait) || (canInspect ? safeAsset(actor.img) : "");
   const hp = canInspect ? actor.system?.attributes?.hp : null;
   const current = Number(hp?.value);
   const max = Number(hp?.max);
   const health = Number.isFinite(current) && Number.isFinite(max) && max > 0 ? `<span class="av-hp">${esc(current)} / ${esc(max)} HP</span>` : "";
-  return `<article class="av-person"><div class="av-portrait">${src?`<img loading="lazy" src="${esc(src)}" alt="${esc(entry.name)} portrait">`:`<span class="av-monogram">${esc((entry.name||"?").charAt(0))}</span>`}</div><div class="av-person-copy"><h3>${esc(entry.name)}</h3><span class="av-kicker">${esc(entry.subtitle)}</span>${entry.description?`<p>${esc(entry.description)}</p>`:""}${health}${canInspect?`<button type="button" class="av-inline-link" data-av-actor="${esc(entry.actorId)}">Open Character Sheet →</button>`:""}</div></article>`;
+  return `<article class="av-person"><div class="av-portrait">${src?`<img loading="lazy" src="${esc(src)}" alt="${esc(entry.name)} portrait">`:`<span class="av-monogram">${esc((entry.name||"?").charAt(0))}</span>`}</div><div class="av-person-copy"><h3>${esc(entry.name)}</h3><span class="av-kicker">${esc(entry.subtitle)}</span>${entry.description?`<p>${esc(entry.description)}</p>`:""}${health}${canInspect?`<button type="button" class="av-inline-link" data-av-actor="${esc(actor.id)}">Open Character Sheet →</button>`:""}</div></article>`;
 }
 function charactersPage(data) {
   const entries = publicEntries(data.characters);
@@ -137,40 +145,84 @@ function recapsPage(data) {
   const chosen = entries.find(r=>r.id===selectedRecap) ?? entries[0];
   return `<section class="av-page"><div class="av-page-heading"><span>TALES OF THOSE WHO CAME BEFORE</span><h2>Session Chronicles</h2><p>Previously on Averis...</p></div><div class="av-recaps"><div class="av-recap-list">${entries.map(r=>`<button type="button" class="av-recap-entry ${chosen?.id===r.id?"av-current":""}" data-av-recap="${esc(r.id)}"><span>SESSION ${esc(r.session)}</span><strong>${esc(r.title)}</strong></button>`).join("")}</div><article class="av-recap-copy">${chosen?`<span class="av-kicker">CHRONICLE ${esc(chosen.session)} ${chosen.date?"• "+esc(chosen.date):""}</span><h3>${esc(chosen.title)}</h3><div class="av-recap-prose">${makeTextParagraphs(chosen.summary)}</div>`:`<div class="av-empty">No recaps have been published yet.</div>`}</article></div></section>`;
 }
+
+function linkedActor(entry) {
+  const explicit=entry.actorId?game.actors.get(entry.actorId):null;
+  if(explicit)return explicit;
+  const characters=game.actors?.contents ?? [];
+  const wanted=String(entry.name??"").toLocaleLowerCase().trim();
+  return characters.find(a=>a.type==="character"&&a.name?.toLocaleLowerCase().trim()===wanted) ??
+    characters.find(a=>a.type==="character" && a.name?.toLocaleLowerCase().trim().startsWith(wanted+" ")) ??null;
+}
+function avatar(entry) {
+  const actor=linkedActor(entry);
+  const canSee=actor?.testUserPermission?.(game.user,CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER);
+  const src=safeAsset(entry.portrait) || (canSee?safeAsset(actor?.img):"");
+  const portrait=src?`<img src="${esc(src)}" alt="${esc(entry.name)}" loading="lazy">`:`<span class="av-silhouette">${esc((entry.name||"?")[0])}</span>`;
+  return `<button type="button" class="av-roster-person" data-av-hero="${esc(entry.id)}" title="${esc(entry.name)}">${portrait}<span>${esc(entry.name)}</span></button>`;
+}
+function roster(data) {
+  const entries=publicEntries(data.characters);
+  const alive=entries.filter(e=>!e.dead);
+  const dead=entries.filter(e=>e.dead);
+  const day=String(data.worldDay??18).padStart(2,"0");
+  const month=String(data.worldMonth??2).padStart(2,"0");
+  return `<aside class="av-roster">
+    <section class="av-scroll-panel av-heroes-panel"><h2 class="av-side-heading">Players</h2>
+    <div class="av-portrait-grid">${alive.map(avatar).join("")}</div>
+    <h2 class="av-side-heading av-dead-heading">Dead</h2>
+    <div class="av-portrait-grid av-dead-grid">${dead.map(avatar).join("") || '<p class="av-no-dead">No fallen heroes</p>'}</div></section>
+    <section class="av-scroll-panel av-stats-panel"><h2 class="av-side-heading">Stats</h2>
+      <div class="av-calendar"><span title="Day">${esc(day)}</span><span title="Month">${esc(month)}</span><span title="Year">${esc(data.worldYear??1024)}</span></div>
+      ${game.user.isGM?'<button type="button" data-av-action="editor" class="av-small-editor">⚙ Edit Stats</button>':""}
+    </section>
+  </aside>`;
+}
+function sceneMap(data) {
+  const src=safeAsset(data.mapImage)||PLACEHOLDER_MAP;
+  const locations=publicEntries(data.locations).filter(e=>game.user.isGM||e.discovered!==false);
+  const pins=locations.map(l=>`<button type="button" class="av-scene-pin" data-av-location="${esc(l.id)}" title="${esc(l.name)}" style="left:${clamp(l.x,0,100)}%;top:${clamp(l.y,0,100)}%"><b>✦</b><span>${esc(l.name)}</span></button>`).join("");
+  return `<div class="av-real-map" aria-label="Map of Averis"><div class="av-map-paper"><div class="av-map-area">
+    <div class="av-map-zoomable" style="transform:scale(${mapZoom})"><img draggable="false" src="${esc(src)}" alt="Averis world map">${pins}</div>
+  </div></div>
+  <div class="av-onmap-heading">Averis</div>
+  <div class="av-scene-zoom"><button type="button" data-av-action="zoom-out" aria-label="Zoom out">−</button><span>${Math.round(mapZoom*100)}%</span><button type="button" data-av-action="zoom-in" aria-label="Zoom in">+</button></div>
+  </div>`;
+}
+function characterInfo(data) {
+  const entry=publicEntries(data.characters).find(c=>c.id===selectedHero);
+  if(!entry)return "";
+  return `<div class="av-stage-info av-hero-info"><div class="av-stage-info-heading">HERO PROFILE<button type="button" data-av-action="home" aria-label="Close details">×</button></div>${personCard(entry)}</div>`;
+}
+function themes() {
+  return `<div class="av-scene-themes" aria-label="Visual map themes">${[
+    ["spring","Spring"],["summer","Summer"],["autumn","Autumn"],["winter","Winter"]
+  ].map(([key,label])=>`<button type="button" class="av-theme-${key} ${theme===key?"av-theme-active":""}" data-av-theme="${key}" title="${label}" aria-label="${label} scenery"><span>${label}</span></button>`).join("")}</div>`;
+}
 export function renderLanding() {
   const root=document.getElementById("averis-landing-root");
-  if(!root)return;
+  if(!root||!viewingLandingScene())return;
   const data=campaign();
-  const detail=activeTab==="map"?mapLocationsPanel(data)
-     :activeTab==="audio"?audioPanel(data)
-     :["characters","quests","recaps"].includes(activeTab)
-       ?`<div class="av-stage-dialog av-book-dialog" role="dialog" aria-label="${esc(SECTION_NAMES[activeTab])}"><div class="av-stage-dialog-heading"><span>AVERIS CHRONICLES</span><button type="button" data-av-action="home" aria-label="Return to map">×</button></div><main class="av-main">${{characters:charactersPage,quests:questPage,recaps:recapsPage}[activeTab](data)}</main></div>`
-       :"";
-  root.innerHTML=`<div class="av-backdrop" aria-hidden="true">${safeAsset(data.backgroundImage)?`<img src="${esc(safeAsset(data.backgroundImage))}" alt="">`:""}</div>
-    <div class="av-campaign-stage ${data.particles?"av-particles":""}">
-      <header class="av-stage-title"><h1>Averis</h1><button type="button" class="av-stage-close" data-av-action="close" aria-label="Close landing page" title="Close">×</button></header>
-      <div class="av-stage-layout">
-        <nav class="av-rail av-rail-left" aria-label="Campaign sections">
+  const detail=selectedHero?characterInfo(data):activeTab==="map"?mapLocationsPanel(data):activeTab==="audio"?audioPanel(data):
+    ["characters","quests","recaps"].includes(activeTab)?`<div class="av-stage-dialog av-book-dialog" role="dialog" aria-label="${esc(SECTION_NAMES[activeTab])}"><div class="av-stage-dialog-heading"><span>AVERIS CHRONICLES</span><button type="button" data-av-action="home" aria-label="Return to map">×</button></div><main class="av-main">${{characters:charactersPage,quests:questPage,recaps:recapsPage}[activeTab](data)}</main></div>`:"";
+  root.innerHTML=`<div class="av-scene-frame av-mood-${theme}">
+      ${roster(data)}
+      <main class="av-scene-main"><div class="av-scene-inner">
+        <nav class="av-rail av-rail-left" aria-label="Averis left buttons">
           ${stageButton("Character Showcase","heroes","characters","left")}
           ${stageButton("Quest Board","quests","quests","left")}
           ${stageButton("Cinematic Start","play","start","left")}
         </nav>
-        ${stageMap(data)}
-        <nav class="av-rail av-rail-right" aria-label="World and media">
+        ${sceneMap(data)}
+        <nav class="av-rail av-rail-right" aria-label="Averis right buttons">
           ${stageButton("Interactive World Map","map","map","right")}
           ${stageButton("Session Recap","recaps","recaps","right")}
           ${stageButton("Music & Effects","music","music","right")}
         </nav>
-      </div>
-      <footer class="av-stage-footer">
-        <div class="av-gm-controls">${game.user.isGM?`<button type="button" class="av-footer-link" data-av-action="editor">${icon("gear")} GM Editor</button><button type="button" class="av-footer-link" data-av-action="show-all">${icon("heroes")} Show to Players</button>`:""}</div>
-        <span class="av-footer-ornament" aria-hidden="true">✦ ─── ◆ ─── ✦</span>
-        <button type="button" class="av-footer-link" data-av-action="audio" ${!safeAsset(data.landingMusic)?"disabled":""} aria-label="${audioPlaying()?"Mute ambience":"Play ambience"}">${icon(audioPlaying()?"audioOn":"audioOff")}</button>
-      </footer>
-      ${detail}
-    </div>`;
+      </div>${themes()}
+      <div class="av-scene-bottom">${game.user.isGM?`<button type="button" data-av-action="editor">⚙ GM Editor</button><button type="button" data-av-action="show-all">☼ Show Scene to Players</button>`:""}<button type="button" data-av-action="audio">${audioPlaying()?"♫ Mute":"♫ Music"}</button></div>
+      ${detail}</main></div>`;
 }
-
 async function showDocumentFromUuid(uuid) {
   try {
     const doc = await fromUuid(uuid);
@@ -183,9 +235,11 @@ async function showDocumentFromUuid(uuid) {
 async function onClick(event) {
   const button = event.target.closest("button");
   if (!button || !event.currentTarget.contains(button)) return;
-  if (button.dataset.avTab) { activeTab=button.dataset.avTab; renderLanding(); return; }
+  if (button.dataset.avTab) { selectedHero=null;activeTab=button.dataset.avTab; renderLanding(); return; }
+  if (button.dataset.avHero) {selectedHero=button.dataset.avHero;activeTab="home";renderLanding();return;}
+  if (button.dataset.avTheme) {theme=button.dataset.avTheme;renderLanding();return;}
   if (button.dataset.avFilter) {filterQuests=button.dataset.avFilter;renderLanding();return;}
-  if (button.dataset.avLocation) {selectedLocation=button.dataset.avLocation;activeTab="map";renderLanding();return;}
+  if (button.dataset.avLocation) {selectedHero=null;selectedLocation=button.dataset.avLocation;activeTab="map";renderLanding();return;}
   if (button.dataset.avRecap) {selectedRecap=button.dataset.avRecap;renderLanding();return;}
   if (button.dataset.avJournal) {await showDocumentFromUuid(button.dataset.avJournal); return;}
   if (button.dataset.avActor) {
@@ -202,42 +256,46 @@ async function onClick(event) {
   }
   switch(button.dataset.avAction) {
     case "close": await closeLanding(); break;
-    case "home": activeTab="home";selectedLocation=null;renderLanding();break;
+    case "home": activeTab="home";selectedLocation=null;selectedHero=null;renderLanding();break;
     case "music": activeTab="audio";renderLanding();break;
-    case "editor": if(game.user.isGM){await closeLanding();editorHandler?.();} break;
+    case "editor": if(game.user.isGM)editorHandler?.(); break;
     case "zoom-in":mapZoom=clamp(mapZoom+0.25,1,2.5);renderLanding();break;
     case "zoom-out":mapZoom=clamp(mapZoom-0.25,1,2.5);renderLanding();break;
     case "map-list": selectedLocation=null;renderLanding();break;
     case "audio": if(audioPlaying())await stopAmbient(); else await startAmbient(); renderLanding();break;
-    case "start": if(game.user.isGM) await startSession();break;
+    case "start": if(game.user.isGM) await startSession();else ui.notifications?.warn("Only the GM can start the session.");break;
     case "show-all": if(game.user.isGM) await showAllPlayers();break;
   }
 }
 
 async function showAllPlayers() {
-  await game.settings.set(MODULE_ID, SETTINGS.sessionOpen, true);
-  game.socket.emit(`module.${MODULE_ID}`,{type:"show", gmId:game.user.id});
-  ui.notifications?.info("Averis Landing: Landing page sent to connected players.");
+  if(!game.user.isGM)return;
+  await game.settings.set(MODULE_ID,SETTINGS.sessionOpen,true);
+  await viewLandingScene({activate:true});
+  game.socket.emit(`module.${MODULE_ID}`,{type:"show",gmId:game.user.id});
+  ui.notifications?.info("Averis Landing: Scene activated for players.");
 }
 export function receiveSocket(payload) {
-  if(!payload || !["show","start"].includes(payload.type)) return;
-  // Only accept visual broadcasts that claim the active GM (server-side settings remain permission-protected).
-  const actorUser=game.users.get(payload.gmId);
-  if (!actorUser?.isGM || !actorUser.active) return;
-  if(payload.type === "show") { if(!game.user.isGM) openLanding("home"); }
-  if(payload.type === "start") { if(!game.user.isGM) void performCinematic(); }
+  if(!payload||!["show","start"].includes(payload.type))return;
+  const sender=game.users.get(payload.gmId);
+  if(!sender?.isGM||!sender.active)return;
+  if(payload.type==="show"&&!game.user.isGM && game.settings.get(MODULE_ID,SETTINGS.sessionOpen))void openLanding();
+  if(payload.type==="start"&&!game.user.isGM&&!game.settings.get(MODULE_ID,SETTINGS.sessionOpen))void performCinematic();
 }
 async function startSession() {
-  if(cinematicRunning || !game.user.isGM) return;
+  if(cinematicRunning||!game.user.isGM)return;
   const data=campaign();
-  // Persistent state prevents late joiners from receiving the closed welcome screen.
-  await game.settings.set(MODULE_ID, SETTINGS.sessionOpen, false);
+  const target=data.targetSceneId?game.scenes.get(data.targetSceneId):null;
+  if(!target||target.id===landingScene()?.id) {
+    ui.notifications?.warn("Set a different target Scene in GM Editor → Cinematic & Audio.");
+    if(!target) {editorHandler?.();return;}
+    return;
+  }
+  await game.settings.set(MODULE_ID,SETTINGS.sessionOpen,false);
   game.socket.emit(`module.${MODULE_ID}`,{type:"start",gmId:game.user.id});
   await performCinematic();
-  const scene=data.targetSceneId ? game.scenes.get(data.targetSceneId) : null;
-  if(scene && game.user.isGM) {
-    try { await scene.activate(); } catch(error) { console.warn("Averis Landing | Scene activation failed",error);ui.notifications?.warn("Could not activate the selected scene."); }
-  }
+  try { await target.activate({pullUsers:true}); }
+  catch(error) {console.error("Averis | Scene activation failed",error);ui.notifications?.error("Could not activate the selected Scene.");}
 }
 export async function performCinematic() {
   if(cinematicRunning) return;
