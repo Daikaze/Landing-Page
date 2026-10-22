@@ -2,7 +2,7 @@
   "id": "averis-landing",
   "title": "Averis Landing Page",
   "description": "Native Foundry VTT v14 Averis Landing Scene with character/dead roster, central atlas, quest board, session recaps, cinematic start, audio and GM editor.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "authors": [
     {
       "name": "Daikaze"

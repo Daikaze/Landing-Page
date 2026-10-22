@@ -1,6 +1,6 @@
-# Averis Landing Page — v0.3.0 (Scene Edition)
+# Averis Landing Page — v0.3.1 (Scene Edition)
 
-A **native Foundry VTT v14 Scene-based** Classic D&D dashboard for the Averis campaign. Works independently of other modules and is designed for D&D 5e 5.3.3. All existing campaign settings from v0.2 are preserved.
+A **native Foundry VTT v14 Scene-based** Classic D&D dashboard for the Averis campaign. Works independently of other modules and is designed for D&D 5e 5.3.3. All existing campaign settings from v0.2 are preserved; the default roster for new installations follows your nine-character reference screenshot.
 
 ## Upgrade / install
 
@@ -16,7 +16,7 @@ The manifest downloads `averis-landing.zip`, which contains the **module files a
 2. The module creates a normal Scene named **Averis Landing**, with a v14 Scene Level and artwork background, if it doesn't already exist. Look for **Averis** in the Scene navigation or the Scenes directory.
 3. **View** the scene to use the landing page yourself. **Activate** it to display it to all connected players. GM may also click **Show Scene to Players** from the landing page.
 4. **GM Editor** is located in the bottom strip. Set your world map, character portraits/Actors, calendar day/month/year, quests, recaps, audio and destination scene.
-5. The default world map is a non-canon illustration, because a standalone image of the official Averis world map was not supplied. Replace it using **GM Editor → Overview → World Map Image**.
+5. The default map is a **cropped reference from the screenshot you provided**. This is lower resolution than the original map artwork; replace it anytime with the original full-resolution map via **GM Editor → Overview → World Map Image**.
 
 **This version no longer opens a fullscreen pop-up or separate tab.** Its controls appear only while viewing its real Foundry Scene. The overlay automatically disappears upon switching to another Scene and reappears when you return. Sidebar windows remain Foundry UI and are not modified.
 

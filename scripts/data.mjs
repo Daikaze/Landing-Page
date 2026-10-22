@@ -20,13 +20,15 @@ export const DEFAULT_CAMPAIGN = {
   targetSceneId: "",
   particles: true,
   characters: [
-    {id:"char-dimir",name:"Dimir",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true,dead:false},
-    {id:"char-rashira",name:"Rashira Krat",subtitle:"Sorcerer · House Krat",portrait:"",description:"",actorId:"",visible:true,dead:false},
-    {id:"char-erika",name:"Erika",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true,dead:false},
-    {id:"char-sindy",name:"Sindy",subtitle:"Half-Dragon",portrait:"",description:"",actorId:"",visible:true,dead:false},
-    {id:"char-sunless",name:"Sunless",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-rashira",name:"Rashira",subtitle:"Sorcerer · House Krat",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-alyona",name:"Alyona",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
     {id:"char-noctis",name:"Noctis",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
-    {id:"char-heinrich",name:"Heinrich",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false}
+    {id:"char-heinrich",name:"Heinrich",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-sindy",name:"Sindy",subtitle:"Half-Dragon",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-dimir",name:"Dimir",subtitle:"Paladin",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-sunless",name:"Sunless",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-yuma",name:"Yuma",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false},
+    {id:"char-yuki",name:"Yuki",subtitle:"Adventurer",portrait:"",description:"",actorId:"",visible:true,dead:false}
   ],
   quests: [
     {id:"q-barrier",title:"The Broken Barrier",category:"Main",status:"Active",progress:80,description:"Uncover the secret of the barriers and Yggsadril.",journalUuid:"",visible:true},

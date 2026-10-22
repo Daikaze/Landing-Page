@@ -29,3 +29,7 @@
 - Add day and month settings, fallen character status, Actor auto-lookup and Import PCs functionality.
 - Preserve previous world campaign records; upgrade package and Foundry-installable manifest ZIP.
 - Verify Javascript syntax, Chromium GM/editor/scene smoke tests on wide and narrow viewports; pending validation in real Foundry v14.
+
+## v0.3.1 — Screenshot map (2026-10-22)
+
+- Use the campaign world map cropped from the supplied landing-page screenshot as the default atlas background, without the surrounding Foundry UI. Set the fresh-install Players roster to the nine names shown in the example. High-resolution original remains configurable by GM.

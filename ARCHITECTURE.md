@@ -1,4 +1,4 @@
-# Averis Landing Scene — design v0.3.0
+# Averis Landing Scene — design v0.3.1
 
 ## Lifecycle
 
@@ -19,7 +19,8 @@
 - `styles/landing.css`: legacy feature/detail/editor styles, all scoped
 - `styles/scene.css`: redesigned frame, parchment panels, balanced responsive scene controls
 - `assets/landing-board.svg`: underlying Foundry v14 Scene Level background
-- `assets/averis-map-placeholder.svg`: deliberately non-canon placeholder until GM selects map
+- `assets/averis-reference-map.webp`: cropped reference map from user-supplied screenshot; replace with high-res original in GM Editor
+- `assets/averis-map-placeholder.svg`: retained fallback draft art
 
 ## Scene vs modal
 

@@ -15,7 +15,7 @@ let cinematicRunning = false;
 let cutsceneTimeout = null;
 let transitionSerial = 0;
 const SECTION_NAMES = {home:"Averis",characters:"Character Showcase",map:"World Atlas",quests:"Quest Board",recaps:"Session Recap",audio:"Music & Effects"};
-const PLACEHOLDER_MAP = "modules/averis-landing/assets/averis-map-placeholder.svg";
+const PLACEHOLDER_MAP = "modules/averis-landing/assets/averis-reference-map.webp";
 
 export function setEditorHandler(callback) { editorHandler = callback; }
 export function landingIsOpen() { return !!document.getElementById("averis-landing-root"); }
