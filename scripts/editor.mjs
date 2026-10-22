@@ -1,5 +1,6 @@
 import {campaign, saveCampaign, ENTRY_TYPES, newId} from "./data.mjs";
 import {esc, clamp, safeAsset, icon} from "./utils.mjs";
+import {syncLandingBackground} from "./scene.mjs";
 
 const {ApplicationV2, HandlebarsApplicationMixin, DialogV2} = foundry.applications.api;
 const FilePicker = foundry.applications.apps.FilePicker;
@@ -23,10 +24,10 @@ function field(name,label,value,{kind="text",min=null,max=null,help="",options=n
   return `<label class="av-edit-field"><span>${esc(label)}</span>${control}${hint}</label>`;
 }
 function heroSettings(data) {
-  return `<div class="av-edit-form-panel"><h2>Campaign Overview</h2><p>General information shown in your Averis Foundry Scene.</p><form data-av-setting-form="general">${field("title","Campaign Title",data.title)}${field("subtitle","Campaign Subtitle",data.subtitle)}${field("worldDay","World Day",data.worldDay??18)}${field("worldMonth","World Month",data.worldMonth??2)}${field("worldYear","Current World Year",data.worldYear)}${field("introduction","Landing Page Introduction",data.introduction,{kind:"textarea"})}${field("backgroundImage","Background Art",data.backgroundImage,{kind:"image",help:"A relative Foundry file path works best (e.g. worlds/your-world/art/background.webp)."})}${field("mapImage","World Map Image",data.mapImage,{kind:"image",help:"Map coordinates are percentages; choose your canonical map before positioning markers."})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Overview</button></div></form></div>`;
+  return `<div class="av-edit-form-panel"><h2>Campaign Overview</h2><p>General information shown in your Averis Foundry Scene.</p><form data-av-setting-form="general">${field("title","Campaign Title",data.title)}${field("subtitle","Campaign Subtitle",data.subtitle)}${field("worldDay","World Day",data.worldDay??18)}${field("worldMonth","World Month",data.worldMonth??2)}${field("worldYear","Current World Year",data.worldYear)}${field("introduction","Landing Page Introduction",data.introduction,{kind:"textarea"})}${field("backgroundImage","Landing Scene Background (optional override)",data.backgroundImage,{kind:"image",help:"Leave empty to use the bundled World Tree art. Setting this updates the native Landing Scene background."})}${field("mapImage","World Map Image",data.mapImage,{kind:"image",help:"Map coordinates are percentages; choose your canonical map before positioning markers."})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Overview</button></div></form></div>`;
 }
 function cinematicSettings(data) {
-  return `<div class="av-edit-form-panel"><h2>Session Intro & Sound</h2><p>Start Session broadcasts a synchronized title card, then activates the selected scene.</p><form data-av-setting-form="cinematic">${field("chapterTitle","Chapter Title",data.chapterTitle)}${field("chapterSubtitle","Chapter Subtitle",data.chapterSubtitle)}${field("targetSceneId","Scene to Activate",data.targetSceneId,{kind:"select",options:[{value:"",label:"No scene activation"},...game.scenes.contents.map(s=>({value:s.id,label:s.name}))]})}${field("cinematicSeconds","Cinematic Duration (seconds)",data.cinematicSeconds,{kind:"number",min:2,max:20})}${field("landingMusic","Landing Ambience (audio path)",data.landingMusic,{kind:"audio"})}${field("cinematicMusic","Cinematic Music (audio path)",data.cinematicMusic,{kind:"audio"})}${field("volume","Music Volume (0-1)",data.volume,{kind:"number",min:0,max:1})}${field("particles","Animated Dust & Particles",data.particles,{kind:"checkbox"})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Intro & Sound</button></div></form></div>`;
+  return `<div class="av-edit-form-panel"><h2>Session Intro & Sound</h2><p>Start Session broadcasts a synchronized title card, then activates the selected scene.</p><form data-av-setting-form="cinematic">${field("chapterTitle","Chapter Title",data.chapterTitle)}${field("chapterSubtitle","Chapter Subtitle",data.chapterSubtitle)}${field("targetSceneId","Scene to Activate",data.targetSceneId,{kind:"select",options:[{value:"",label:"No scene activation"},...game.scenes.contents.map(s=>({value:s.id,label:s.name}))]})}${field("cinematicSeconds","Cinematic Duration (seconds)",data.cinematicSeconds,{kind:"number",min:2,max:20})}${field("landingMusic","Custom Music Path (optional)",data.landingMusic,{kind:"audio"})}${field("cinematicMusic","Cinematic Music (audio path)",data.cinematicMusic,{kind:"audio"})}${field("volume","Default Sound Volume (0-1)",data.volume,{kind:"number",min:0,max:1})}${field("particles","Animated Dust & Particles",data.particles,{kind:"checkbox"})}<div class="av-editor-actions"><button type="submit" class="av-save">Save Intro & Sound</button></div></form></div>`;
 }
 function blank(type) {
   const result = {id:newId()};
@@ -163,7 +164,7 @@ export class AverisLandingEditor extends HandlebarsApplicationMixin(ApplicationV
       else data[type].push(entry);
       this.selectedId=id;
     } else return;
-    try {await saveCampaign(data);ui.notifications?.info("Averis Landing: Changes saved.");await this._renderKeepScroll();}
+    try {await saveCampaign(data);if(form.dataset.avSettingForm==="general")await syncLandingBackground(data.backgroundImage,{force:true});ui.notifications?.info("Averis Landing: Changes saved.");await this._renderKeepScroll();}
     catch(error){console.error("Averis Landing | Save failed:",error);ui.notifications?.error("Averis Landing: Save failed.");}
   }
   async _delete(id) {

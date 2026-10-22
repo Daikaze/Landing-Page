@@ -1,7 +1,7 @@
-import {MODULE_ID,SETTINGS,DEFAULT_CAMPAIGN} from "./data.mjs";
+import {MODULE_ID,SETTINGS,DEFAULT_CAMPAIGN,campaign} from "./data.mjs";
 import {openLanding,closeLanding,renderLanding,installLauncher,refreshLauncher,receiveSocket,setEditorHandler,landingIsOpen,mountSceneOverlay} from "./landing.mjs";
 import {openEditor} from "./editor.mjs";
-import {ensureLandingScene,viewLandingScene,viewingLandingScene} from "./scene.mjs";
+import {ensureLandingScene,syncLandingBackground,viewLandingScene,viewingLandingScene} from "./scene.mjs";
 
 Hooks.once("init",()=>{
   game.settings.register(MODULE_ID,SETTINGS.campaign,{
@@ -10,6 +10,7 @@ Hooks.once("init",()=>{
   game.settings.register(MODULE_ID,SETTINGS.sessionOpen,{
     name:"Landing Session Open",scope:"world",config:false,type:Boolean,default:true
   });
+  game.settings.register(MODULE_ID,SETTINGS.clientVolume,{name:"Landing Music Volume",scope:"client",config:false,type:Number,default:0.35});
   game.settings.register(MODULE_ID,SETTINGS.openOnJoin,{
     name:"Open active Averis scene on join",hint:"Open the real Foundry Landing Scene when it is active. Does not create a modal window.",
     scope:"world",config:true,type:Boolean,default:true
@@ -31,7 +32,7 @@ Hooks.once("ready",async()=>{
     show:()=>viewLandingScene({activate:true})
   });
   if(game.user.isGM) {
-    try { await ensureLandingScene(); }
+    try { await ensureLandingScene(); await syncLandingBackground(campaign().backgroundImage); }
     catch(error){console.error("Averis Landing | Could not create scene",error);ui.notifications?.error("Averis: Could not create the Landing Scene. Check the console.");}
   }
   if(viewingLandingScene()) mountSceneOverlay();
@@ -40,7 +41,7 @@ Hooks.once("ready",async()=>{
           game.scenes?.active?.getFlag?.(MODULE_ID,"landingScene")) {
     void openLanding();
   }
-  console.info("Averis Landing | 0.3.0 scene edition initialized for Foundry VTT v14");
+  console.info("Averis Landing | 0.4.0 world tree edition initialized for Foundry VTT v14");
 });
 
 Hooks.on("canvasReady",()=>mountSceneOverlay());

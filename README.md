@@ -1,4 +1,4 @@
-# Averis Landing Page — v0.3.1 (Scene Edition)
+# Averis Landing Page — v0.4.0 (World Tree Edition)
 
 A **native Foundry VTT v14 Scene-based** Classic D&D dashboard for the Averis campaign. Works independently of other modules and is designed for D&D 5e 5.3.3. All existing campaign settings from v0.2 are preserved; the default roster for new installations follows your nine-character reference screenshot.
 
@@ -20,23 +20,29 @@ The manifest downloads `averis-landing.zip`, which contains the **module files a
 
 **This version no longer opens a fullscreen pop-up or separate tab.** Its controls appear only while viewing its real Foundry Scene. The overlay automatically disappears upon switching to another Scene and reappears when you return. Sidebar windows remain Foundry UI and are not modified.
 
-## Layout
+## In-game World Tree menu (v0.4)
 
-- **Left parchment column:** Players grid (portrait or linked Actor art), Dead grid and Stats (day/month/year). The `Fallen` option in a character entry moves that card to Dead.
-- **Center:** Framed Averis map, GM-managed discovery pins, zoom and four client-side seasonal color presets. Map is editable from GM Editor.
-- **Left three buttons:** Character Showcase, Quest Board, Cinematic Start.
-- **Right three buttons:** Interactive World Map, Session Recap, Music & Effects.
-- **Bottom:** GM Editor, Show Scene to Players, ambient music toggle.
+- The actual Foundry **Averis Landing** Scene has the user-supplied World Tree Ascendant art as its scene-level background (`assets/world-tree-ascendant.webp`). This is not a browser tab, modal or scene-imitating image.
+- The immersive navigation draws six equally balanced gold-and-blue RPG buttons on top of the native canvas art. The "AVERIS" title is part of the background artwork, so it isn't duplicated.
+- **Left:** Character Showcase, Quest Board, Cinematic Start (GM only).
+- **Right:** Interactive World Map, Session Recap, Music & Effects.
+- The detailed pages open as in-scene overlays and are dismissed with `×`; clicking a linked Actor or Journal opens the native Foundry sheet where permissions allow it.
+- **Bottom:** world date, local music control, GM Editor and Activate Scene for Players.
+- World Map is a true secondary menu with GM-managed map markers, linked scenes and zoom. Changing the map through the editor does not overwrite the World Tree landing background.
 
-Each button has a click handler. The **GM-only** Cinematic Start requires a destination Scene configured in **GM Editor → Cinematic & Audio**. If none is selected, the module shows a warning and opens the editor, rather than silently doing nothing. Map locations with linked Scene IDs can open their Scenes if the current user has access.
+### Existing scenes and saved data
+
+When upgrading from v0.3.x, the module will replace the old *auto-generated* `landing-board.svg` background on the flagged **Averis Landing** Scene with the new art while preserving custom backgrounds you set manually. It does not delete the Scene or recreate your content. Open **GM Editor → Overview** if you want to set an alternative Landing Scene background explicitly; use an empty field to restore the included artwork.
 
 ### Character portraits / Actors
 
 Enter portrait paths individually or assign Actors from the **Foundry Character Actor** dropdown. The module also auto-matches character Actors by exact name (or unambiguous first-name prefix) if no Actor ID is provided. In **GM Editor → Characters**, click **Import PCs** to add missing character Actors and link existing same-name characters to their Actors. Imported characters default to living and visible; their Dead checkbox can be edited later.
 
-### Music
+### Music & sound fixes (v0.4)
 
-Set a landing ambience audio path and a cinematic music path in GM Editor. Browser audio autoplay restrictions usually require players to click Music to begin sound. Music is stopped when the landing scene is left.
+A bundled original 32-second `assets/averis-ambient.ogg` loop is included. The **Music & Effects** menu starts playback on click, then provides a Play/Stop button, Default Theme / Custom Track selection (when one is configured), and a **per-player 0–100% volume slider**. The small Music button in the footer is also an on/off toggle. The loop plays through Foundry v14's `game.audio.create({context:game.audio.music})` and `Sound.play({loop,volume})` API and stops when you leave the Scene. The ambient loop is also the fallback for campaigns whose old `landingMusic` was empty.
+
+A custom audio path can be specified in **GM Editor → Cinematic & Audio**. Paths must point to readable files served by Foundry. No automatic browser autoplay is attempted before a user click. If the audio is globally muted in Foundry, the module explicitly reports that; check Foundry's audio settings / music channel if you still hear nothing. The music slider stores a local client preference; it does not adjust other players' volume.
 
 ### Helpful script API
 

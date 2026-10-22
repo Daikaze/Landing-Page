@@ -1,6 +1,6 @@
 import {campaign, publicEntries, MODULE_ID, SETTINGS} from "./data.mjs";
 import {esc, icon, safeAsset, clamp, makeTextParagraphs} from "./utils.mjs";
-import {audioPlaying, startAmbient, stopAmbient, playCinematicMusic, stopCinematicMusic} from "./audio.mjs";
+import {audioPlaying, startAmbient, stopAmbient, playCinematicMusic, stopCinematicMusic, getClientVolume, setClientVolume, audioSourceChoice, audioError, DEFAULT_AMBIENCE} from "./audio.mjs";
 import {landingScene, viewLandingScene, viewingLandingScene} from "./scene.mjs";
 
 let activeTab = "home";
@@ -64,7 +64,7 @@ function positionOverlay() {
 }
 window.addEventListener("resize",positionOverlay);
 export function mountSceneOverlay() {
-  if(!viewingLandingScene()) {document.getElementById("averis-landing-root")?.remove();refreshLauncher();return;}
+  if(!viewingLandingScene()) {document.getElementById("averis-landing-root")?.remove();void stopAmbient();refreshLauncher();return;}
   let root=document.getElementById("averis-landing-root");
   if(!root) {
     root=document.createElement("section");
@@ -72,6 +72,15 @@ export function mountSceneOverlay() {
     root.className="av-scene-overlay";
     root.setAttribute("aria-label","Averis Landing Scene controls");
     root.addEventListener("click",onClick);
+    root.addEventListener("change",event=>{
+      if(event.target?.dataset?.avVolume!==undefined)void setClientVolume(Number(event.target.value)/100);
+    });
+    root.addEventListener("input",event=>{
+      if(event.target?.dataset?.avVolume!==undefined){
+        const el=root.querySelector(".av-volume-value");
+        if(el)el.textContent=`${event.target.value}%`;
+      }
+    });
     document.body.append(root);
   }
   positionOverlay();
@@ -106,11 +115,25 @@ function mapLocationsPanel(data) {
     </div>`;
 }
 function audioPanel(data) {
-  const hasMusic=!!safeAsset(data.landingMusic);
-  return `<div class="av-stage-dialog" role="dialog" aria-label="Music and effects"><div class="av-stage-dialog-heading"><span>THE SOUNDS OF AVERIS</span><button type="button" data-av-action="home" aria-label="Close music panel">×</button></div><div class="av-audio-chapter">
-    <div class="av-audio-emblem">${icon("music")}</div><h2>Music & Effects</h2><p>Set the atmosphere before the adventure begins.</p>
-    <button type="button" class="av-gold-button" data-av-action="audio" ${hasMusic?"":"disabled"}>${icon(audioPlaying()?"audioOn":"audioOff")} ${hasMusic?(audioPlaying()?"Stop Ambience":"Play Ambience"):"No track configured"}</button>
-    <small>Ambient particles: ${data.particles?"Enabled":"Disabled"}</small>${game.user.isGM?`<button type="button" class="av-inline-link" data-av-action="editor">Manage music in GM Editor →</button>`:""}
+  const custom=safeAsset(data.landingMusic);
+  const customAvailable=Boolean(custom && custom!==DEFAULT_AMBIENCE);
+  const choice=audioSourceChoice();
+  const playing=audioPlaying();
+  const volume=Math.round(getClientVolume()*100);
+  return `<div class="av-stage-dialog av-sound-dialog" role="dialog" aria-label="Music and effects">
+    <div class="av-stage-dialog-heading"><span>THE SOUNDS OF AVERIS</span><button type="button" data-av-action="home" aria-label="Close music panel">×</button></div>
+    <div class="av-audio-chapter">
+      <div class="av-audio-emblem">${icon("music")}</div>
+      <h2>Music & Effects</h2><p>Choose the soundtrack to your adventure.</p>
+      <div class="av-track-choices"><button type="button" data-av-track="default" class="${choice==="default"?"av-track-selected":""}">✦ World Tree — Original Theme</button>
+        ${customAvailable?`<button type="button" data-av-track="custom" class="${choice==="custom"?"av-track-selected":""}">♫ Custom Track</button>`:""}
+      </div>
+      <button type="button" class="av-gold-button av-sound-toggle" data-av-action="audio">${icon(playing?"audioOn":"audioOff")} ${playing?"Stop Music":"Play Music"}</button>
+      <label class="av-sound-volume"><span>Volume <output class="av-volume-value">${volume}%</output></span>
+        <input type="range" min="0" max="100" step="1" value="${volume}" data-av-volume="" aria-label="Landing music volume"></label>
+      <small>${playing?"Now playing on this device":"Click Play to enable browser audio"}</small>
+      ${audioError()?`<p class="av-audio-error">${esc(audioError())}</p>`:""}
+      ${game.user.isGM?`<button type="button" class="av-inline-link" data-av-action="editor">Choose a custom track in GM Editor →</button>`:""}
     </div></div>`;
 }
 function personCard(entry) {
@@ -203,26 +226,38 @@ export function renderLanding() {
   const root=document.getElementById("averis-landing-root");
   if(!root||!viewingLandingScene())return;
   const data=campaign();
-  const detail=selectedHero?characterInfo(data):activeTab==="map"?mapLocationsPanel(data):activeTab==="audio"?audioPanel(data):
-    ["characters","quests","recaps"].includes(activeTab)?`<div class="av-stage-dialog av-book-dialog" role="dialog" aria-label="${esc(SECTION_NAMES[activeTab])}"><div class="av-stage-dialog-heading"><span>AVERIS CHRONICLES</span><button type="button" data-av-action="home" aria-label="Return to map">×</button></div><main class="av-main">${{characters:charactersPage,quests:questPage,recaps:recapsPage}[activeTab](data)}</main></div>`:"";
-  root.innerHTML=`<div class="av-scene-frame av-mood-${theme}">
-      ${roster(data)}
-      <main class="av-scene-main"><div class="av-scene-inner">
-        <nav class="av-rail av-rail-left" aria-label="Averis left buttons">
+  const modalTabs={characters:charactersPage,map:mapPage,quests:questPage,recaps:recapsPage};
+  const detail=selectedHero?characterInfo(data):activeTab==="audio"?audioPanel(data):
+    modalTabs[activeTab]?`<div class="av-stage-dialog av-book-dialog" role="dialog" aria-label="${esc(SECTION_NAMES[activeTab])}"><div class="av-stage-dialog-heading"><span>THE CHRONICLES OF AVERIS</span><button type="button" data-av-action="home" aria-label="Return to main menu">×</button></div><main class="av-main">${modalTabs[activeTab](data)}</main></div>`:"";
+  root.innerHTML=`<div class="av-scene-frame av-fantasy-menu ${detail?"av-dialog-open":""}">
+    <div class="av-art-vignette" aria-hidden="true"></div>
+    <div class="av-menu-content">
+      <div class="av-menu-topline"><span class="av-diamond">✧</span> THE CHRONICLES <span class="av-diamond">✧</span></div>
+      <div class="av-game-menu">
+        <nav class="av-rail av-rail-left" aria-label="Adventure menu left">
           ${stageButton("Character Showcase","heroes","characters","left")}
           ${stageButton("Quest Board","quests","quests","left")}
           ${stageButton("Cinematic Start","play","start","left")}
         </nav>
-        ${sceneMap(data)}
-        <nav class="av-rail av-rail-right" aria-label="Averis right buttons">
+        <div class="av-menu-focal" aria-hidden="true"></div>
+        <nav class="av-rail av-rail-right" aria-label="Adventure menu right">
           ${stageButton("Interactive World Map","map","map","right")}
           ${stageButton("Session Recap","recaps","recaps","right")}
           ${stageButton("Music & Effects","music","music","right")}
         </nav>
-      </div>${themes()}
-      <div class="av-scene-bottom">${game.user.isGM?`<button type="button" data-av-action="editor">⚙ GM Editor</button><button type="button" data-av-action="show-all">☼ Show Scene to Players</button>`:""}<button type="button" data-av-action="audio">${audioPlaying()?"♫ Mute":"♫ Music"}</button></div>
-      ${detail}</main></div>`;
+      </div>
+      <footer class="av-menu-footer">
+        <span class="av-menu-date">✦ ${esc(String(data.worldDay??18).padStart(2,"0"))} / ${esc(String(data.worldMonth??2).padStart(2,"0"))} / ${esc(data.worldYear??1024)} ✦</span>
+        <div class="av-footer-actions">
+          ${game.user.isGM?`<button type="button" data-av-action="editor">⚙ GM Editor</button><button type="button" data-av-action="show-all">✧ Show to Players</button>`:""}
+          <button type="button" data-av-action="audio" aria-label="${audioPlaying()?"Stop music":"Play music"}">${icon(audioPlaying()?"audioOn":"audioOff")} ${audioPlaying()?"Mute":"Music"}</button>
+        </div>
+      </footer>
+    </div>
+    ${detail}
+  </div>`;
 }
+
 async function showDocumentFromUuid(uuid) {
   try {
     const doc = await fromUuid(uuid);
@@ -235,6 +270,7 @@ async function showDocumentFromUuid(uuid) {
 async function onClick(event) {
   const button = event.target.closest("button");
   if (!button || !event.currentTarget.contains(button)) return;
+  if(button.dataset.avTrack){await startAmbient({source:button.dataset.avTrack});renderLanding();return;}
   if (button.dataset.avTab) { selectedHero=null;activeTab=button.dataset.avTab; renderLanding(); return; }
   if (button.dataset.avHero) {selectedHero=button.dataset.avHero;activeTab="home";renderLanding();return;}
   if (button.dataset.avTheme) {theme=button.dataset.avTheme;renderLanding();return;}
@@ -257,7 +293,11 @@ async function onClick(event) {
   switch(button.dataset.avAction) {
     case "close": await closeLanding(); break;
     case "home": activeTab="home";selectedLocation=null;selectedHero=null;renderLanding();break;
-    case "music": activeTab="audio";renderLanding();break;
+    case "music":
+      selectedHero=null;
+      activeTab="audio";
+      if(!audioPlaying())await startAmbient();
+      renderLanding();break;
     case "editor": if(game.user.isGM)editorHandler?.(); break;
     case "zoom-in":mapZoom=clamp(mapZoom+0.25,1,2.5);renderLanding();break;
     case "zoom-out":mapZoom=clamp(mapZoom-0.25,1,2.5);renderLanding();break;
@@ -279,8 +319,8 @@ export function receiveSocket(payload) {
   if(!payload||!["show","start"].includes(payload.type))return;
   const sender=game.users.get(payload.gmId);
   if(!sender?.isGM||!sender.active)return;
-  if(payload.type==="show"&&!game.user.isGM && game.settings.get(MODULE_ID,SETTINGS.sessionOpen))void openLanding();
-  if(payload.type==="start"&&!game.user.isGM&&!game.settings.get(MODULE_ID,SETTINGS.sessionOpen))void performCinematic();
+  if(payload.type==="show"&&!game.user.isGM)void openLanding();
+  if(payload.type==="start"&&!game.user.isGM && viewingLandingScene())void performCinematic();
 }
 async function startSession() {
   if(cinematicRunning||!game.user.isGM)return;

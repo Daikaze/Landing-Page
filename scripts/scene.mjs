@@ -1,7 +1,8 @@
 import {MODULE_ID} from "./data.mjs";
 
 const LANDING_FLAG = "landingScene";
-const BACKGROUND = `modules/${MODULE_ID}/assets/landing-board.svg`;
+const BACKGROUND = `modules/${MODULE_ID}/assets/world-tree-ascendant.webp`;
+const LEGACY_BACKGROUND = `modules/${MODULE_ID}/assets/landing-board.svg`;
 let creatingScene = null;
 
 export function landingScene() {
@@ -44,6 +45,22 @@ export async function ensureLandingScene() {
   return creatingScene;
 }
 
+// Upgrade only the original auto-generated Scene art. Never overwrite a custom
+// scene background or remove extra level data configured by the GM.
+export async function syncLandingBackground(customPath="", {force=false}={}) {
+  if(!game.user?.isGM)return;
+  const scene=landingScene();
+  if(!scene)return;
+  const image=customPath || BACKGROUND;
+  const levels=scene.levels?.map(level=>typeof level.toObject==="function"?level.toObject():structuredClone(level)) ?? [];
+  if(!levels.length)return;
+  const previous=levels[0]?.background?.src;
+  const autoArt=[LEGACY_BACKGROUND,BACKGROUND, ""].includes(previous);
+  if(!force && !customPath && !autoArt)return; // preserve custom scene art
+  if(previous===image)return;
+  levels[0].background={...(levels[0].background||{}),src:image};
+  await scene.update({levels});
+}
 export async function viewLandingScene({activate = false} = {}) {
   const scene = landingScene() ?? await ensureLandingScene();
   if (!scene) {

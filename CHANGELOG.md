@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.0 — World Tree Edition
+
+- Rebuilt the landing as a transparent native-Scene RPG menu with three equally-spaced interactive buttons per side, styled after the user reference.
+- Installed the user-supplied World Tree Ascendant art as the actual Scene Level background, not a separate window, preserving its embedded AVERIS logo.
+- Automatically migrate only the legacy `landing-board.svg` scene background, retaining custom scene artwork.
+- Added bundled original audible 32-second fantasy ambient OGG loop; first music click plays a track immediately.
+- Reworked Music & Effects with source picker, Play/Stop, error status, per-client volume slider and valid Foundry v14 AudioHelper/Sound API usage.
+- Ensure starting/stopping sounds is race-resistant; stop when leaving the Landing Scene or during cinematics.
+- Adjusted modal menus to open within the scene while keeping the background visible.
+- Fixed a cross-client cinematic socket race: a client can receive the GM event before the world setting replicates.
+- Added smoke coverage for map, quests, characters, recap, audio source, volume, editor, cinematic start, background upgrade and small-screen layout.
+- Client-side browser tests pass. Live Foundry v14 integration still requires confirmation in the user's world.
+
+# Changelog
+
 ## 0.2.0 — Atlas landing layout
 
 - Replaced the website-like header, navigation and hero page with a full-screen Classic D&D atlas.

@@ -1,5 +1,5 @@
 export const MODULE_ID = "averis-landing";
-export const SETTINGS = { campaign: "campaign", sessionOpen: "sessionOpen", openOnJoin: "openOnJoin", showLauncher: "showLauncher" };
+export const SETTINGS = { campaign: "campaign", sessionOpen: "sessionOpen", openOnJoin: "openOnJoin", showLauncher: "showLauncher", clientVolume:"clientVolume" };
 
 // These are editable campaign starting points, not authoritative world geography.
 export const DEFAULT_CAMPAIGN = {
@@ -9,11 +9,11 @@ export const DEFAULT_CAMPAIGN = {
   worldDay: "18",
   worldMonth: "02",
   introduction: "Four barriers guard the realms. Across Averis, forgotten guardians and ancient secrets are beginning to awaken.",
-  backgroundImage: "",
+  backgroundImage: "modules/averis-landing/assets/world-tree-ascendant.webp",
   mapImage: "",
   chapterTitle: "The Story Continues",
   chapterSubtitle: "Previously on Averis...",
-  landingMusic: "",
+  landingMusic: "modules/averis-landing/assets/averis-ambient.ogg",
   cinematicMusic: "",
   volume: 0.30,
   cinematicSeconds: 5,

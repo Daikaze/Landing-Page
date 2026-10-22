@@ -1,4 +1,4 @@
-# Averis Landing Scene — design v0.3.1
+# Averis Landing Scene — design v0.4.1
 
 ## Lifecycle
 
@@ -33,3 +33,10 @@ Save world configuration as a Foundry world setting, retaining existing v0.2 rec
 ## Testing
 
 `tests/scene-test.py` runs a local Chromium smoke test with mocked Foundry v14 world, Scene creation, Scene viewing, UI, ApplicationV2 and socket operations; tests wide and narrow viewport, major buttons, hero/dead, stats, season, zoom, GM Editor, cinematic and leaving Scene. This is **not** a real Foundry integration test.
+
+## World Tree Scene / Sound (v0.4)
+
+- `scripts/scene.mjs`: `ensureLandingScene` builds a v14 Scene with a level background at `modules/averis-landing/assets/world-tree-ascendant.webp`. `syncLandingBackground` migrates legacy auto art only; custom art is preserved.
+- `scripts/landing.mjs`: transparent `#averis-landing-root` HTML controls positioned above the **Foundry canvas**, with a full native RPG game-menu layout and detailed map/book/music panels. All clickable elements are in the scoped overlay.
+- `scripts/audio.mjs`: one local `Sound` instance per browser/client, produced via `game.audio.create`; `Sound.play({loop,volume})`, with a per-client volume preference and revision token for async start/stop race prevention. Included OGG allows immediate manual playback without a GM audio path.
+- Assets: bundled user-provided tree background WebP (full-resolution from user upload, lossy optimized) + original synthesized 32-second OGG loop.
